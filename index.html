@@ -267,15 +267,14 @@ h1.serif{font-family:var(--serif);font-weight:500;color:#7a2a3a;font-size:clamp(
 .cam-pair{display:flex;align-items:flex-end;justify-content:center;gap:4px}
 .cam-pair .sticker{width:clamp(110px,20vw,160px)}
 /* 1. film conveyor */
-.film-wrap{position:relative;width:100vw;margin-left:calc(50% - 50vw);overflow:hidden;padding-block:6px}
+.film-wrap{position:relative;width:100vw;margin-left:calc(50% - 50vw);overflow:hidden;padding-block:6px;touch-action:pan-y;cursor:grab;-webkit-user-select:none;user-select:none}
+.film-wrap.dragging{cursor:grabbing}
+.film-wrap.dragging .frame{pointer-events:none}
 .film-row{transform:rotate(var(--tilt));margin-block:10px}
-.film{position:relative;display:flex;width:max-content;background:#2a1d1b;padding:26px 0;animation:roll var(--dur,48s) linear infinite;will-change:transform}
-.film.rev{animation-direction:reverse}
+.film{position:relative;display:flex;width:max-content;background:#2a1d1b;padding:26px 0;will-change:transform}
 .film::before,.film::after{content:"";position:absolute;left:0;right:0;height:12px;background:repeating-linear-gradient(90deg,transparent 0 9px,#f6eee8 9px 21px,transparent 21px 30px);opacity:.92}
 .film::before{top:7px}.film::after{bottom:7px}
-.film-wrap.paused .film{animation-play-state:paused}
-@keyframes roll{to{transform:translateX(-50%)}}
-.frame{position:relative;flex:0 0 auto;width:clamp(140px,21vw,220px);aspect-ratio:4/5;margin:0 7px;border:0;padding:0;background:#120c0b;cursor:pointer;overflow:hidden;border-radius:2px}
+.frame{position:relative;flex:0 0 auto;-webkit-user-drag:none;width:clamp(140px,21vw,220px);aspect-ratio:4/5;margin:0 7px;border:0;padding:0;background:#120c0b;cursor:pointer;overflow:hidden;border-radius:2px}
 .frame img,.frame video,.frame .ph-tile{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s var(--ease-out)}
 .frame:hover img,.frame:hover video{transform:scale(1.06)}
 .frame:focus-visible{outline-offset:-3px}
@@ -504,7 +503,7 @@ body.end-mode .rain{opacity:1}
 
   <!-- 6. галерея: плёнка-конвейер -->
   <section class="screen wide" id="s-film" aria-labelledby="t-film">
-    <div class="ghead" data-a style="--i:0"><img class="gsticker" src="stickers/look.webp" alt="" width="497" height="498"><h2 class="gtitle" id="t-film">наша плёнка</h2><p class="gsub">нажми на кадр, чтобы рассмотреть</p></div>
+    <div class="ghead" data-a style="--i:0"><img class="gsticker" src="stickers/look.webp" alt="" width="497" height="498"><h2 class="gtitle" id="t-film">наша плёнка</h2><p class="gsub">листай пальцем, нажми на кадр, чтобы рассмотреть</p></div>
     <div class="film-wrap" id="filmWrap" data-a style="--i:1"></div>
     <div class="gnav" data-a style="--i:2"><button class="pill" type="button" data-go="s-garland">дальше</button></div>
   </section>
@@ -903,9 +902,63 @@ function buildFilm(){
   const frames = list.concat(list).map(([it,i]) => `<button class="frame" type="button" data-i="${i}" aria-label="${it.caption || 'кадр'}">${media(it,i,{auto:true})}</button>`).join("");
   $("filmWrap").innerHTML = `<div class="film-row" style="--tilt:-2deg"><div class="film" style="--dur:${list.length*5}s">${frames}</div></div>`;
   $("filmWrap").addEventListener("click", e => { const f = e.target.closest(".frame"); if (f) openLB(FILM[+f.dataset.i], +f.dataset.i); });
-  $("filmWrap").addEventListener("pointerenter", () => $("filmWrap").classList.add("paused"));
+  $("filmWrap").addEventListener("pointerenter", e => { if (e.pointerType === "mouse") $("filmWrap").classList.add("paused"); });
   $("filmWrap").addEventListener("pointerleave", () => { if (!$("lb").classList.contains("on")) $("filmWrap").classList.remove("paused"); });
   watchVideos($("filmWrap"));
+  filmMotion($("filmWrap"), $("filmWrap").querySelector(".film"), list.length * 5);
+}
+
+/* плёнка едет сама, но её можно тянуть пальцем или мышкой (с инерцией) и крутить колёсиком */
+function filmMotion(wrap, film, secs){
+  let half = film.scrollWidth / 2, x = 0, vel = 0, last = performance.now();
+  let drag = null, moved = false, suppressClick = false, lastMoveT = 0;
+  const auto = () => (reduce || wrap.classList.contains("paused")) ? 0 : -half / secs;   // px в секунду, влево
+  const wrapX = v => { if (!half) return v; v %= half; return v > 0 ? v - half : v; };
+  addEventListener("resize", () => { const k = half ? x / half : 0; half = film.scrollWidth / 2; x = wrapX(k * half); });
+  vel = auto();
+  function tick(t){
+    const dt = Math.min(.05, (t - last) / 1000); last = t;
+    if (!drag && $("s-film").classList.contains("on")){
+      vel += (auto() - vel) * (1 - Math.exp(-dt * 2.2));    // инерция плавно переходит в обычный ход
+      x = wrapX(x + vel * dt);
+      film.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  wrap.addEventListener("pointerdown", e => {
+    if (e.button > 0) return;
+    drag = {id: e.pointerId, sx: e.clientX, sy: e.clientY, x0: x, px: e.clientX, pt: performance.now()};
+    moved = false; vel = 0;
+  });
+  wrap.addEventListener("pointermove", e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.sx;
+    if (!moved){
+      if (Math.abs(dx) < 6) return;
+      if (Math.abs(e.clientY - drag.sy) > Math.abs(dx)){ drag = null; return; }   // это вертикальная прокрутка страницы
+      moved = true; wrap.classList.add("dragging");
+      try { wrap.setPointerCapture(e.pointerId); } catch {}
+    }
+    const now = performance.now(), ddt = Math.max(1, now - drag.pt);
+    vel = vel * .3 + ((e.clientX - drag.px) / ddt * 1000) * .7;
+    drag.px = e.clientX; drag.pt = now; lastMoveT = now;
+    x = wrapX(drag.x0 + dx);
+    film.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`;
+  });
+  const end = e => {
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    if (moved){ suppressClick = true; setTimeout(() => suppressClick = false, 60); if (performance.now() - lastMoveT > 90) vel = 0; }
+    vel = Math.max(-4000, Math.min(4000, vel));
+    drag = null; wrap.classList.remove("dragging");
+  };
+  wrap.addEventListener("pointerup", end); wrap.addEventListener("pointercancel", end);
+  wrap.addEventListener("click", e => { if (suppressClick){ e.stopPropagation(); e.preventDefault(); suppressClick = false; } }, true);
+  wrap.addEventListener("wheel", e => {
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : 0);
+    if (!d) return;
+    e.preventDefault(); x = wrapX(x - d); vel = 0; film.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`;
+  }, {passive:false});
 }
 
 /* 2. гирлянда с прищепками */

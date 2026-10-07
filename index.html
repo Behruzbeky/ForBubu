@@ -255,7 +255,7 @@ h1.serif{font-family:var(--serif);font-weight:500;color:#7a2a3a;font-size:clamp(
 .scard.gone{opacity:0;pointer-events:none}
 .count{font:600 1rem var(--serif);color:#6e4f4a;font-variant-numeric:tabular-nums;background:rgba(255,253,249,.85);padding:2px 12px;border-radius:999px}
 .heartwall{position:relative;width:min(380px,88vw);aspect-ratio:1;margin:6px auto 0}
-.hthumb{position:absolute;width:19%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(var(--rot));background:#fffdf9;padding:4px 4px 10px;border:0;cursor:pointer;box-shadow:0 4px 8px rgba(80,30,40,.22);animation:hpop .55s var(--ease-spring) both;animation-delay:calc(var(--i) * 70ms)}
+.hthumb{position:absolute;width:27%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(var(--rot));background:#fffdf9;padding:4px 4px 10px;border:0;cursor:pointer;box-shadow:0 4px 8px rgba(80,30,40,.22);animation:hpop .55s var(--ease-spring) both;animation-delay:calc(var(--i) * 70ms)}
 .hthumb .im{width:100%;height:100%;overflow:hidden}
 .hthumb img,.hthumb video,.hthumb .ph-tile{width:100%;height:100%;object-fit:cover;display:block;font-size:.8rem}
 .hthumb .ph-tile svg{display:none}
@@ -697,30 +697,12 @@ words($("finalText"), FINAL);
    { type:"photo", src:"media/1.jpg", caption:"наше первое свидание" }
    { type:"video", src:"media/2.mp4", caption:"как ты смеёшься" }
    Пока список пуст, показываются заготовки. */
-const MEDIA = [
-  { type:"photo", src:"media/p1.jpg", thumb:"media/p1-t.jpg", caption:"" },
-  { type:"video", src:"media/v1.mp4", prev:"media/v1-prev.mp4", poster:"media/v1-poster.jpg", caption:"" },
-  { type:"photo", src:"media/p2.jpg", thumb:"media/p2-t.jpg", caption:"" },
-  { type:"photo", src:"media/p3.jpg", thumb:"media/p3-t.jpg", caption:"" },
-  { type:"video", src:"media/v2.mp4", prev:"media/v2-prev.mp4", poster:"media/v2-poster.jpg", caption:"" },
-  { type:"photo", src:"media/p4.jpg", thumb:"media/p4-t.jpg", caption:"" },
-  { type:"photo", src:"media/p5.jpg", thumb:"media/p5-t.jpg", caption:"" },
-  { type:"video", src:"media/v3.mp4", prev:"media/v3-prev.mp4", poster:"media/v3-poster.jpg", caption:"" },
-  { type:"photo", src:"media/p6.jpg", thumb:"media/p6-t.jpg", caption:"" },
-  { type:"photo", src:"media/p7.jpg", thumb:"media/p7-t.jpg", caption:"" },
-  { type:"video", src:"media/v4.mp4", prev:"media/v4-prev.mp4", poster:"media/v4-poster.jpg", caption:"" },
-  { type:"photo", src:"media/p8.jpg", thumb:"media/p8-t.jpg", caption:"" },
-  { type:"video", src:"media/v5.mp4", prev:"media/v5-prev.mp4", poster:"media/v5-poster.jpg", caption:"" },
-  { type:"photo", src:"media/p9.jpg", thumb:"media/p9-t.jpg", caption:"" },
-  { type:"video", src:"media/v6.mp4", prev:"media/v6-prev.mp4", poster:"media/v6-poster.jpg", caption:"" },
-  { type:"video", src:"media/v7.mp4", prev:"media/v7-prev.mp4", poster:"media/v7-poster.jpg", caption:"" },
-  { type:"video", src:"media/v8.mp4", prev:"media/v8-prev.mp4", poster:"media/v8-poster.jpg", caption:"" }
-];
-const CAM_CAPTION = "моя Bubu";
-const TG_USERNAME = "";        // твой ник в Telegram без @, чтобы она могла отправить фото тебе в чат
-/* ============================================ */
-
-const ITEMS = MEDIA.length ? MEDIA : Array.from({length:8}, (_,i) => ({ph:true, type: (i===2||i===5) ? "video" : "photo", caption: (i===2||i===5) ? "тут будет видео" : "тут будет фото", n:i+1}));
+const P = n => ({ type:"photo", src:`media/p${n}.jpg`, thumb:`media/p${n}-t.jpg`, caption:"" });
+const V = n => ({ type:"video", src:`media/v${n}.mp4`, prev:`media/v${n}-prev.mp4`, poster:`media/v${n}-poster.jpg`, caption:"" });
+/* у каждой галереи свои кадры, без повторов */
+const FILM    = [V(1), P(1), V(2), V(10), P(2), V(3), V(9), P(10)];
+const GARLAND = [P(3), V(4), P(4), V(5), P(5), V(11), P(6), V(12)];
+const STACK   = [P(7), V(6), P(8), P(9), V(7), P(11), V(8)];
 const HEART_SVG = `<svg viewBox="0 0 100 92"><path d="${HEART_PATH}" fill="currentColor"/></svg>`;
 const PLAY_SVG = `<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="#fff"/></svg>`;
 function media(it, i, opts={}){
@@ -764,13 +746,10 @@ addEventListener("keydown", e => { if (e.key === "Escape" && $("lb").classList.c
 
 /* 1. плёнка-конвейер: две ленты навстречу */
 function buildFilm(){
-  const rows = [ {list: ITEMS.map((it,i)=>[it,i]), tilt:"-2deg", rev:false}, {list: ITEMS.map((it,i)=>[it,i]).reverse(), tilt:"1.5deg", rev:true} ];
-  $("filmWrap").innerHTML = rows.map(r => {
-    let seq = r.list.slice(); while (seq.length < 9) seq = seq.concat(r.list);
-    const frames = seq.concat(seq).map(([it,i]) => `<button class="frame" type="button" data-i="${i}" aria-label="${it.caption || 'кадр'}">${media(it,i,{auto:true})}</button>`).join("");
-    return `<div class="film-row" style="--tilt:${r.tilt}"><div class="film ${r.rev?'rev':''}" style="--dur:${seq.length*4.2}s">${frames}</div></div>`;
-  }).join("");
-  $("filmWrap").addEventListener("click", e => { const f = e.target.closest(".frame"); if (f) openLB(ITEMS[+f.dataset.i], +f.dataset.i); });
+  const list = FILM.map((it,i)=>[it,i]);
+  const frames = list.concat(list).map(([it,i]) => `<button class="frame" type="button" data-i="${i}" aria-label="${it.caption || 'кадр'}">${media(it,i,{auto:true})}</button>`).join("");
+  $("filmWrap").innerHTML = `<div class="film-row" style="--tilt:-2deg"><div class="film" style="--dur:${list.length*5}s">${frames}</div></div>`;
+  $("filmWrap").addEventListener("click", e => { const f = e.target.closest(".frame"); if (f) openLB(FILM[+f.dataset.i], +f.dataset.i); });
   $("filmWrap").addEventListener("pointerenter", () => $("filmWrap").classList.add("paused"));
   $("filmWrap").addEventListener("pointerleave", () => { if (!$("lb").classList.contains("on")) $("filmWrap").classList.remove("paused"); });
   watchVideos($("filmWrap"));
@@ -778,8 +757,8 @@ function buildFilm(){
 
 /* 2. гирлянда с прищепками */
 function buildGarland(){
-  $("gTrack").innerHTML = ITEMS.map((it,i) => `<button class="pol" type="button" data-i="${i}" style="--d:${(-i*0.7).toFixed(1)}s;--a:${(1.8+(i%3)*.9).toFixed(1)}deg;--t:${(3.6+(i%4)*.5).toFixed(1)}s"><div class="im">${media(it,i,{auto:true})}</div><div class="cap">${it.caption||""}</div></button>`).join("");
-  $("gTrack").addEventListener("click", e => { const p = e.target.closest(".pol"); if (p) openLB(ITEMS[+p.dataset.i], +p.dataset.i); });
+  $("gTrack").innerHTML = GARLAND.map((it,i) => `<button class="pol" type="button" data-i="${i}" style="--d:${(-i*0.7).toFixed(1)}s;--a:${(1.8+(i%3)*.9).toFixed(1)}deg;--t:${(3.6+(i%4)*.5).toFixed(1)}s"><div class="im">${media(it,i,{auto:true})}</div><div class="cap">${it.caption||""}</div></button>`).join("");
+  $("gTrack").addEventListener("click", e => { const p = e.target.closest(".pol"); if (p) openLB(GARLAND[+p.dataset.i], +p.dataset.i); });
   watchVideos($("gTrack"));
 }
 function drawRope(){
@@ -805,9 +784,9 @@ addEventListener("resize", () => { if (current.id === "s-garland") drawRope(); }
 let sIdx = 0;
 const stackEls = [];
 function buildStack(){
-  ITEMS.forEach((it,i) => {
+  STACK.forEach((it,i) => {
     const c = document.createElement("div");
-    c.className = "scard"; c.style.setProperty("--rot", (((i*53)%15)-7) + "deg"); c.style.zIndex = ITEMS.length - i;
+    c.className = "scard"; c.style.setProperty("--rot", (((i*53)%15)-7) + "deg"); c.style.zIndex = STACK.length - i;
     c.innerHTML = `<div class="im">${media(it,i)}</div><div class="cap">${it.caption||""}</div>`;
     $("stack").appendChild(c); stackEls.push(c);
   });
@@ -815,7 +794,7 @@ function buildStack(){
 }
 function markTop(){
   stackEls.forEach((c,k) => c.classList.toggle("top", k === sIdx));
-  $("stackCount").textContent = sIdx < ITEMS.length ? `${sIdx+1} / ${ITEMS.length}` : "";
+  $("stackCount").textContent = sIdx < STACK.length ? `${sIdx+1} / ${STACK.length}` : "";
 }
 function throwCard(dir=1){
   const c = stackEls[sIdx]; if (!c) return;
@@ -823,7 +802,7 @@ function throwCard(dir=1){
   c.style.transform = `translate(${dir*140}%, -10%) rotate(${dir*28}deg)`;
   c.classList.add("gone");
   sIdx++; markTop();
-  if (sIdx >= ITEMS.length) setTimeout(buildHeart, reduce ? 0 : 420);
+  if (sIdx >= STACK.length) setTimeout(buildHeart, reduce ? 0 : 420);
 }
 $("stackNext").onclick = () => throwCard(Math.random() > .5 ? 1 : -1);
 (function dragStack(){
@@ -839,7 +818,7 @@ $("stackNext").onclick = () => throwCard(Math.random() > .5 ? 1 : -1);
   const end = () => {
     if (!active) return; const c = active; active = null;
     if (Math.abs(dx) > 90) throwCard(Math.sign(dx));
-    else { c.classList.remove("drag"); c.style.transform = ""; if (Math.abs(dx) < 6) openLB(ITEMS[sIdx], sIdx); }
+    else { c.classList.remove("drag"); c.style.transform = ""; if (Math.abs(dx) < 6) openLB(STACK[sIdx], sIdx); }
   };
   $("stack").addEventListener("pointerup", end);
   $("stack").addEventListener("pointercancel", end);
@@ -847,14 +826,17 @@ $("stackNext").onclick = () => throwCard(Math.random() > .5 ? 1 : -1);
 function buildHeart(){
   $("stack").hidden = true; $("stackNext").hidden = true; $("stackCount").textContent = "";
   $("t-stack").textContent = "все вместе";
-  let seq = ITEMS.map((it,i)=>[it,i]); while (seq.length < 16) seq = seq.concat(ITEMS.map((it,i)=>[it,i]));
+  const seq = STACK.map((it,i)=>[it,i]);
   const n = seq.length;
   $("heartwall").innerHTML = seq.map(([it,i],k) => {
-    const t = Math.PI*2*k/n, x = 16*Math.sin(t)**3, y = -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t));
+    const TPL = [[27,22],[73,22],[11,45],[89,45],[30,68],[70,68],[50,88],[50,42]];
+    let x, y;
+    if (n <= TPL.length){ x = (TPL[k][0]-50)/40*17; y = (TPL[k][1]-46)/40*17; }
+    else { const t = Math.PI*2*k/n; x = 16*Math.sin(t)**3; y = -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)); }
     return `<button class="hthumb" type="button" data-i="${i}" style="left:${(50 + x/17*40).toFixed(2)}%;top:${(46 + y/17*40).toFixed(2)}%;--rot:${((k*41)%17)-8}deg;--i:${k}" aria-label="${it.caption||'фото'}"><div class="im">${media(it,i)}</div></button>`;
   }).join("");
   $("heartwall").hidden = false;
-  $("heartwall").onclick = e => { const b = e.target.closest(".hthumb"); if (b) openLB(ITEMS[+b.dataset.i], +b.dataset.i); };
+  $("heartwall").onclick = e => { const b = e.target.closest(".hthumb"); if (b) openLB(STACK[+b.dataset.i], +b.dataset.i); };
   $("stackDone").hidden = false;
   const r = $("heartwall").getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height/2, 24);
 }

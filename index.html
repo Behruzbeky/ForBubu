@@ -73,18 +73,57 @@ h1.serif{font-family:var(--serif);font-weight:500;color:#7a2a3a;font-size:clamp(
 .row{display:flex;align-items:center;justify-content:center;gap:clamp(12px,4vw,40px);flex-wrap:wrap;width:100%}
 
 /* buttons */
-.pill{min-height:48px;min-width:120px;font-family:var(--serif);font-weight:600;font-size:1.15rem;color:var(--ink);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px;background:#fbf8f5;border:2px solid #4b3b34;border-radius:16px;padding:8px 30px;box-shadow:3px 4px 0 var(--gold);cursor:pointer;transition:transform var(--t-micro) var(--ease-out),box-shadow var(--t-micro) var(--ease-out),background-color var(--t-micro)}
-.pill:hover{transform:translate(-1px,-2px);box-shadow:4px 6px 0 var(--gold);background:#fff}
-.pill:active{transform:translate(2px,2px) scale(.97);box-shadow:1px 1px 0 var(--gold)}
-:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:12px}
-.round{width:56px;height:56px;border-radius:50%;border:2px solid #fff;cursor:pointer;background:radial-gradient(circle at 35% 28%,#eaf4ff 0 12%,#85b8f2 36%,var(--blue) 66%,#2a5fb5 100%);box-shadow:0 4px 10px rgba(30,60,120,.3),inset 0 -3px 6px rgba(0,0,0,.15);display:grid;place-items:center;padding:0;transition:transform var(--t-micro) var(--ease-spring)}
-.round:hover{transform:scale(1.08)}
-.round:active{transform:scale(.94)}
+/* ---------- кнопки: жидкое стекло как в iOS ---------- */
+.pill,.round,.owner-link{
+  --mx:30%; --my:0%; --sx:1; --sy:1;
+  position:relative;isolation:isolate;overflow:hidden;cursor:pointer;
+  -webkit-backdrop-filter:blur(10px) saturate(190%) brightness(1.06);backdrop-filter:blur(10px) saturate(190%) brightness(1.06);
+  scale:var(--sx) var(--sy);
+  transition:scale .5s var(--ease-spring),box-shadow .3s var(--ease-out),background-color .3s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.pill,.owner-link{
+  --glass-shadow:inset 0 1px 1px rgba(255,255,255,.95),inset 0 -1px 1px rgba(255,255,255,.55),inset 0 -12px 18px -12px rgba(142,42,64,.32),inset 0 10px 14px -12px rgba(255,255,255,.9),0 10px 24px -8px rgba(110,40,60,.38),0 2px 5px rgba(110,40,60,.12);
+  min-height:48px;min-width:120px;padding:8px 30px;border-radius:999px;
+  font-family:var(--serif);font-weight:600;font-size:1.15rem;color:var(--wine);text-decoration:none;letter-spacing:.01em;
+  text-shadow:0 1px 0 rgba(255,255,255,.7);
+  background:linear-gradient(180deg,rgba(255,255,255,.62) 0%,rgba(255,255,255,.22) 48%,rgba(255,255,255,.08) 52%,rgba(255,255,255,.3) 100%),rgba(246,195,208,.28);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:var(--glass-shadow);
+}
+.round{
+  --glass-shadow:inset 0 1px 1px rgba(255,255,255,.85),inset 0 -2px 3px rgba(255,255,255,.35),inset 0 -14px 20px -12px rgba(40,6,20,.45),inset 0 12px 16px -12px rgba(255,255,255,.75),0 10px 22px -8px rgba(90,20,45,.55),0 2px 5px rgba(90,20,45,.2);
+  width:56px;height:56px;border-radius:50%;padding:0;display:grid;place-items:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.06) 55%,rgba(255,255,255,.18)),rgba(166,61,104,.62);
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:var(--glass-shadow);
+}
+/* блик, который ходит за пальцем, и тонкий светящийся край */
+.pill::before,.round::before,.owner-link::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;
+  background:radial-gradient(120% 90% at var(--mx) var(--my),rgba(255,255,255,.85) 0%,rgba(255,255,255,.25) 28%,transparent 55%);
+  opacity:.75;mix-blend-mode:soft-light;transition:opacity .3s}
+.pill::after,.round::after,.owner-link::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,255,255,.08) 38%,rgba(255,255,255,0) 60%,rgba(255,255,255,.75));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.pill > :not(.drop),.round > :not(.drop){position:relative}
+/* капля: брызги света от точки касания */
+.drop{position:absolute;left:var(--dx);top:var(--dy);width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,.35) 45%,transparent 70%);animation:dropOut .7s var(--ease-out) forwards}
+@keyframes dropOut{from{transform:scale(1);opacity:.9}to{transform:scale(22);opacity:0}}
+.glass-press{--sx:1.07;--sy:.93;transition-duration:.18s}
+.glass-press::before{opacity:1}
+@media (hover:hover){
+  .pill:hover,.owner-link:hover{background-color:rgba(246,195,208,.4)}
+  .pill:hover::before,.round:hover::before,.owner-link:hover::before{opacity:1}
+  .round:hover{--sx:1.06;--sy:1.06}
+}
+.pill:focus-visible,.round:focus-visible,.owner-link:focus-visible{outline:2px solid var(--wine-3);outline-offset:3px}
+@media (prefers-reduced-motion: reduce){.drop{display:none}.pill,.round,.owner-link{transition:none}}
 .round svg{width:22px;height:22px}
 .next{position:absolute;right:clamp(14px,3vw,30px);bottom:clamp(14px,3vw,24px)}
 .next svg{margin-left:3px}
 .next.pulse{animation:pulse 2.2s var(--ease-out) infinite}
-@keyframes pulse{0%,60%,100%{box-shadow:0 4px 10px rgba(30,60,120,.3),0 0 0 0 rgba(59,130,217,.45)}30%{box-shadow:0 4px 10px rgba(30,60,120,.3),0 0 0 12px rgba(59,130,217,0)}}
+@keyframes pulse{0%,60%,100%{box-shadow:var(--glass-shadow),0 0 0 0 rgba(166,61,104,.45)}30%{box-shadow:var(--glass-shadow),0 0 0 14px rgba(166,61,104,0)}}
 
 /* stickers */
 .sticker{display:block;width:clamp(140px,26vw,210px);height:auto;aspect-ratio:var(--ar,1);mix-blend-mode:multiply;transform-origin:50% 92%;animation:var(--mv,bob) var(--mvt,3.2s) ease-in-out .6s infinite}
@@ -334,7 +373,7 @@ body.end-mode .rain{opacity:1}
 .inbox{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;width:100%;margin-top:6px}
 .inbox button{border:0;padding:0;background:none;cursor:pointer}
 .inbox img{width:100%;display:block;box-shadow:0 6px 12px rgba(80,30,40,.2)}
-.owner-link{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font:600 .95rem var(--serif);min-height:44px;padding:8px 16px;border-radius:999px;border:2px solid #4b3b34;background:#fffdf9;box-shadow:2px 3px 0 var(--gold);cursor:pointer}
+.owner-link{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-size:.95rem;min-height:44px;min-width:0;padding:8px 18px}
 .link{background:none;border:0;font:600 1rem var(--serif);color:#6e4f4a;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px;padding:0 8px}
 
 @media (max-width:560px){
@@ -1130,6 +1169,26 @@ new MutationObserver(() => setMove($("lsticker"))).observe($("lsticker"), {attri
 
 /* лепестки лилий падают вместе с сердечками в конце */
 $("rain").insertAdjacentHTML("beforeend", Array.from({length: reduce ? 0 : 10}, (_,k) => `<i style="left:${(k*9.3+6)%100}%;--s:${14+(k*5)%12}px;--c:#f6c3d0;--t:${8+(k*1.7)%6}s;--d:${-(k*1.3)%9}s;--dx:${((k%4)-1.5)*40}px;--r:${((k%5)-2)*90}deg"><svg viewBox="-28 -92 56 94"><path d="M0 0C24 -18 26 -60 7 -86Q1 -94 -5 -86C-24 -62 -22 -20 0 0Z" fill="url(#lPetalIn)" stroke="#e7a0b4" stroke-width="1"/></svg></i>`).join(""));
+
+/* жидкое стекло на кнопках: блик за пальцем, капля света и упругое нажатие */
+const GLASS = ".pill,.round,.owner-link";
+const glassAt = (b, e) => { const r = b.getBoundingClientRect(); b.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100).toFixed(1) + "%"); b.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100).toFixed(1) + "%"); return [e.clientX - r.left, e.clientY - r.top]; };
+document.addEventListener("pointermove", e => { const b = e.target.closest && e.target.closest(GLASS); if (b) glassAt(b, e); }, {passive:true});
+document.addEventListener("pointerdown", e => {
+  const b = e.target.closest && e.target.closest(GLASS); if (!b || b.disabled) return;
+  const [x, y] = glassAt(b, e);
+  b.classList.add("glass-press");
+  if (!reduce){
+    const d = document.createElement("span"); d.className = "drop"; d.setAttribute("aria-hidden", "true");
+    d.style.cssText = `--dx:${x}px;--dy:${y}px`; d.addEventListener("animationend", () => d.remove(), {once:true}); b.appendChild(d);
+  }
+  const up = () => {
+    removeEventListener("pointerup", up); removeEventListener("pointercancel", up);
+    b.classList.remove("glass-press");
+    if (!reduce && b.animate) b.animate([{scale:"1.07 .93"},{scale:".95 1.06"},{scale:"1.03 .97"},{scale:".99 1.01"},{scale:"1 1"}], {duration:620, easing:"cubic-bezier(.22,1,.36,1)"});
+  };
+  addEventListener("pointerup", up); addEventListener("pointercancel", up);
+}, {passive:true});
 
 /* подгружаем стикеры заранее, чтобы не было пауз */
 (window.requestIdleCallback || (f => setTimeout(f, 800)))(() => ["lock","ask","please","ready","miss","sad","happy","hug","fight","final","look","carry","goof"].forEach(n => { const im = new Image(); im.decoding = "async"; im.src = "stickers/" + n + ".webp"; }));

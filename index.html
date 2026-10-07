@@ -690,6 +690,7 @@ function show(id){
     const f = next.querySelector("h1, h2, .ltext, .final-text"); if (f){ f.setAttribute("tabindex","-1"); f.focus({preventScroll:true}); }
     $("s-envs").querySelector(".next").classList.toggle("pulse", id === "s-envs" && readCount() === LETTERS.length);
     if (onShow[id]) onShow[id]();
+    if (TG_SCREENS[id]){ tgLast = TG_SCREENS[id][0].replace(/^\S+\s/, ""); tgNote(TG_SCREENS[id][0], TG_SCREENS[id][1], id); }
   }, reduce ? 0 : 190);
 }
 document.addEventListener("click", e => {
@@ -739,9 +740,12 @@ $("passForm").addEventListener("submit", e => {
     $("err").textContent = "";
     const r = $("pass").getBoundingClientRect(); burst(r.left + r.width/2, r.top, 22);
     clearBlooms();
+    tgLast = "вошла по паролю";
+    tgNote(tries ? `🔓 Вошла! Пароль верный (до этого ошибок: ${tries})` : "🔓 Вошла с первой попытки", true, "unlock");
     show("s-ask");
   } else {
     $("err").textContent = WRONG[tries++ % WRONG.length];
+    tgNote(`🔒 Неверный пароль, попытка ${tries}: «${$("pass").value.trim().slice(0, 40)}»`);
     bloomQuarter();
     const f = $("pass").parentElement; f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake");
     $("pass").select();
@@ -764,6 +768,8 @@ LETTERS.forEach((L,i) => {
 function openLetter(i, btn){
   const L = LETTERS[i];
   $("ltitle").textContent = "Открой, когда " + L.label;
+  tgLast = "письмо «" + L.label + "»";
+  tgNote("📖 Открыла письмо «Открой, когда " + L.label + "»", true, "letter" + i);
   words($("ltext"), L.text);
   $("lsticker").src = "stickers/" + L.sticker + ".webp";
   $("llink").hidden = !L.link;
@@ -794,6 +800,61 @@ const TG_USERNAME = "";        // ник в Telegram без @ для видим�
 const TG_BOT_TOKEN = "8304922576:AAEFvNuvs7ThCfpSJtLkd4tq0N7iH0hgtNk";
 const TG_CHAT_ID = "5145950402";
 /* ============================================ */
+
+/* ---------- уведомления Dudu в Telegram: когда открыли сайт и что там делают ----------
+   Свои заходы не считаются: открой сайт один раз со ссылкой ...ForBubu/?me на каждом своём телефоне.
+   Чтобы снова получать уведомления с этого устройства: ...ForBubu/?notme */
+const TRACK = true;                            // false — выключить уведомления
+const ME = (() => { try {
+  const q = new URLSearchParams(location.search);
+  if (q.has("me")) localStorage.setItem("dudu-me", "1");
+  if (q.has("notme")) localStorage.removeItem("dudu-me");
+  return localStorage.getItem("dudu-me") === "1";
+} catch { return false; } })();
+let visitNo = 1;
+try { visitNo = +(localStorage.getItem("dudu-visits") || 0) + 1; if (!ME) localStorage.setItem("dudu-visits", visitNo); } catch {}
+const tgSeen = new Set(), tgStart = Date.now();
+let tgLast = "пароль", tgHiddenAt = 0;
+function tgNote(text, loud = false, once = ""){
+  if (!TRACK || ME || !TG_BOT_TOKEN || !TG_CHAT_ID || (window.claude && window.claude.use) || location.protocol === "file:") return;
+  if (once){ if (tgSeen.has(once)) return; tgSeen.add(once); }
+  const body = new URLSearchParams({chat_id: TG_CHAT_ID, text, disable_notification: loud ? "false" : "true"});
+  try { fetch("https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendMessage", {method:"POST", body, mode:"no-cors", keepalive:true}).catch(() => {}); } catch {}
+}
+const tgMins = () => { const m = Math.round((Date.now() - tgStart) / 60000); return m < 1 ? "меньше минуты" : m + " мин"; };
+async function tgDevice(){
+  const ua = navigator.userAgent;
+  const os = /iPhone/.test(ua) ? "iPhone" : (/iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) ? "iPad"
+    : /Android/.test(ua) ? "Android" : /Windows/.test(ua) ? "Windows" : /Mac/.test(ua) ? "Mac" : "неизвестное устройство";
+  const br = /SamsungBrowser/.test(ua) ? "Samsung Internet" : /Instagram/.test(ua) ? "Instagram" : /YaBrowser/.test(ua) ? "Яндекс Браузер"
+    : /EdgA?\//.test(ua) ? "Edge" : /OPR|Opera/.test(ua) ? "Opera" : /CriOS|Chrome/.test(ua) ? "Chrome" : /FxiOS|Firefox/.test(ua) ? "Firefox" : /Safari/.test(ua) ? "Safari" : "браузер";
+  let model = "";
+  try { if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues){
+    const v = await Promise.race([navigator.userAgentData.getHighEntropyValues(["model"]), new Promise(r => setTimeout(() => r({}), 700))]);
+    model = v.model ? " " + v.model : "";
+  } } catch {}
+  return os + model + ", " + br;
+}
+tgDevice().then(dev => tgNote(`🔔 Сайт открыли (${visitNo === 1 ? "первый раз с этого устройства" : visitNo + "-й раз с этого устройства"})\n📱 ${dev}`, true));
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden"){
+    tgHiddenAt = Date.now();
+    if (Date.now() - tgStart > 10000) tgNote(`👋 Свернула или закрыла сайт. Была ${tgMins()}, последнее: ${tgLast}`);
+  } else if (tgHiddenAt && Date.now() - tgHiddenAt > 60000){
+    tgNote(`👀 Вернулась на сайт (не было ${Math.round((Date.now() - tgHiddenAt) / 60000)} мин)`, true);
+  }
+});
+const TG_SCREENS = {
+  "s-please": ["🙈 Нажала «нет» на «Посмотришь?»", true],
+  "s-ready":  ["✅ Согласилась посмотреть", false],
+  "s-envs":   ["✉️ Перешла к конвертам", false],
+  "s-final":  ["💌 Открыла последнее письмо", true],
+  "s-film":   ["🎞 Смотрит плёнку с фото", false],
+  "s-garland":["🖼 Смотрит гирлянду с фото", false],
+  "s-stack":  ["📚 Листает стопку полароидов", false],
+  "s-cam":    ["📷 Дошла до фотоаппарата", false],
+  "s-end":    ["❤️ Дошла до финала «Я тебя люблю»", true],
+};
 const HEART_SVG = `<svg viewBox="0 0 100 92"><path d="${HEART_PATH}" fill="currentColor"/></svg>`;
 const PLAY_SVG = `<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="#fff"/></svg>`;
 function media(it, i, opts={}){
@@ -819,6 +880,7 @@ function openLB(it, i){
   else if (!it.ph) m.innerHTML = `<img src="${it.src}" alt="${(it.caption||'').replace(/"/g,'&quot;')}" decoding="async">`;
   else m.innerHTML = media(it, i);
   $("lbCap").textContent = it.caption || "";
+  if (!it.img) tgNote(`🔍 Открыла ${it.type === "video" ? "видео" : "фото"} крупно${it.caption ? ": «" + it.caption + "»" : ""}`, false, "lb" + (it.src || i));
   $("lbSave").hidden = !it.save;
   $("lbSave").onclick = async () => { const bin = atob(it.img.split(",")[1]), arr = new Uint8Array(bin.length); for (let k=0;k<bin.length;k++) arr[k] = bin.charCodeAt(k); await saveBlob(new Blob([arr], {type:"image/jpeg"}), it.save); };
   $("lb").classList.add("on");

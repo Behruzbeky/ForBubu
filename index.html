@@ -104,6 +104,19 @@ h1.serif{font-family:var(--serif);font-weight:500;color:#7a2a3a;font-size:clamp(
 .shake{animation:shake .42s var(--ease-out)}
 @keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
 
+/* лилии: каждая ошибка в пароле засаживает цветами ещё одну четверть фона */
+.bloom-field{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;transition:opacity .9s var(--ease-out),transform .9s var(--ease-out)}
+.bloom-field.gone{opacity:0;transform:scale(1.06)}
+.bq{position:absolute;width:50%;height:50%}
+.bq .bl{position:absolute;left:var(--x);top:var(--y);width:var(--w);transform:translate(-50%,-50%) rotate(var(--r)) scale(0);opacity:0;animation:bloomIn .85s var(--ease-spring) var(--d) forwards}
+.bq .bl img{display:block;width:100%;height:auto;filter:drop-shadow(0 6px 10px rgba(110,40,60,.2));transform-origin:50% 60%;animation:bloomSway var(--sw) ease-in-out var(--d) infinite alternate}
+@keyframes bloomIn{60%{opacity:1}to{opacity:1;transform:translate(-50%,-50%) rotate(var(--r)) scale(1)}}
+@keyframes bloomSway{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+@media (prefers-reduced-motion: reduce){
+  .bq .bl{animation:none;opacity:1;transform:translate(-50%,-50%) rotate(var(--r))}
+  .bq .bl img{animation:none}
+}
+
 /* envelopes */
 .envs{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(18px,3.4vw,34px) clamp(16px,4vw,46px);max-width:660px;padding-bottom:38px}
 .env{--w:clamp(132px,24vw,156px);position:relative;width:var(--w);aspect-ratio:1.08;border:0;padding:0;background:none;cursor:pointer;transform:rotate(var(--r,0deg));transition:transform .3s var(--ease-spring);filter:drop-shadow(2px 6px 6px rgba(90,20,45,.28))}
@@ -349,6 +362,7 @@ body.end-mode .rain{opacity:1}
 </defs></svg>
 <div class="bg gingham" aria-hidden="true"></div>
 <div class="bg hearts grain" id="heartsBg" aria-hidden="true"></div>
+<div class="bloom-field" id="bloom" aria-hidden="true"></div>
 <div class="fx" id="fx" aria-hidden="true"></div>
 
 <main class="stage">
@@ -647,6 +661,35 @@ document.addEventListener("click", e => {
 /* пароль */
 $("hintText").textContent = HINT;
 $("eye").onclick = () => { const p = $("pass"), hid = p.type === "password"; p.type = hid ? "text" : "password"; $("eye").setAttribute("aria-label", hid ? "Скрыть пароль" : "Показать пароль"); };
+/* лилии за неверный пароль: 1-я ошибка — левый верх, 2-я — правый верх, 3-я — правый низ, 4-я — левый низ */
+const LILIES = ["blue","pink","wine","cream","navy","sketch","water"].map(n => "lilies/lily-" + n + ".webp");
+const QUARTERS = [[0,0],[1,0],[1,1],[0,1]];
+let bloomed = 0, bloomReset;
+function bloomQuarter(){
+  if (bloomed >= QUARTERS.length) return;
+  clearTimeout(bloomReset); $("bloom").classList.remove("gone");
+  const [qx, qy] = QUARTERS[bloomed++];
+  const qw = innerWidth / 2, qh = innerHeight / 2;
+  const size = Math.round(Math.max(78, Math.min(150, Math.min(innerWidth, innerHeight) * .19)));
+  const step = size * .62, cols = Math.ceil(qw / step) + 1, rows = Math.ceil(qh / step) + 1;
+  const q = document.createElement("div"); q.className = "bq";
+  q.style.cssText = `left:${qx*50}%;top:${qy*50}%`;
+  const cells = [];
+  for (let r=0; r<rows; r++) for (let c=0; c<cols; c++){
+    const fx = (c + .5 + (Math.random()-.5)*.8) / cols, fy = (r + .5 + (Math.random()-.5)*.8) / rows;
+    const dist = Math.hypot(qx ? 1-fx : fx, qy ? 1-fy : fy) / Math.SQRT2;   // от угла экрана к центру
+    cells.push({fx, fy, dist});
+  }
+  cells.sort(() => Math.random() - .5);
+  q.innerHTML = cells.map((p,k) => `<span class="bl" style="--x:${(p.fx*100).toFixed(1)}%;--y:${(p.fy*100).toFixed(1)}%;--w:${Math.round(size*(.8+Math.random()*.45))}px;--r:${Math.round((Math.random()-.5)*70)}deg;--d:${Math.round(p.dist*650 + Math.random()*140)}ms;--sw:${(4+Math.random()*3).toFixed(1)}s"><img src="${LILIES[(k + bloomed*3) % LILIES.length]}" alt="" decoding="async"></span>`).join("");
+  $("bloom").appendChild(q);
+}
+function clearBlooms(){
+  if (!bloomed) return;
+  $("bloom").classList.add("gone");
+  bloomReset = setTimeout(() => { $("bloom").textContent = ""; $("bloom").classList.remove("gone"); bloomed = 0; }, 950);
+}
+
 let tries = 0; const WRONG = ["не тот пароль, Bubu","Dudu качает головой","подумай ещё чуть-чуть"];
 $("passForm").addEventListener("submit", e => {
   e.preventDefault();
@@ -655,9 +698,11 @@ $("passForm").addEventListener("submit", e => {
   if (ok){
     $("err").textContent = "";
     const r = $("pass").getBoundingClientRect(); burst(r.left + r.width/2, r.top, 22);
+    clearBlooms();
     show("s-ask");
   } else {
     $("err").textContent = WRONG[tries++ % WRONG.length];
+    bloomQuarter();
     const f = $("pass").parentElement; f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake");
     $("pass").select();
   }
@@ -1088,6 +1133,7 @@ $("rain").insertAdjacentHTML("beforeend", Array.from({length: reduce ? 0 : 10}, 
 
 /* подгружаем стикеры заранее, чтобы не было пауз */
 (window.requestIdleCallback || (f => setTimeout(f, 800)))(() => ["lock","ask","please","ready","miss","sad","happy","hug","fight","final","look","carry","goof"].forEach(n => { const im = new Image(); im.decoding = "async"; im.src = "stickers/" + n + ".webp"; }));
+(window.requestIdleCallback || (f => setTimeout(f, 400)))(() => LILIES.forEach(src => { const im = new Image(); im.decoding = "async"; im.src = src; }));
 </script>
 
 </body>

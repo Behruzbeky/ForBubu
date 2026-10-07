@@ -254,8 +254,8 @@ h1.serif{font-family:var(--serif);font-weight:500;color:#7a2a3a;font-size:clamp(
 .scard.drag{transition:none;cursor:grabbing}
 .scard.gone{opacity:0;pointer-events:none}
 .count{font:600 1rem var(--serif);color:#6e4f4a;font-variant-numeric:tabular-nums;background:rgba(255,253,249,.85);padding:2px 12px;border-radius:999px}
-.heartwall{position:relative;width:min(380px,88vw);aspect-ratio:1;margin:6px auto 0}
-.hthumb{position:absolute;width:27%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(var(--rot));background:#fffdf9;padding:4px 4px 10px;border:0;cursor:pointer;box-shadow:0 4px 8px rgba(80,30,40,.22);animation:hpop .55s var(--ease-spring) both;animation-delay:calc(var(--i) * 70ms)}
+.heartwall{position:relative;width:min(440px,92vw);aspect-ratio:1;margin:6px auto 0}
+.hthumb{position:absolute;width:var(--hw,27%);aspect-ratio:1;transform:translate(-50%,-50%) rotate(var(--rot));background:#fffdf9;padding:4px 4px 10px;border:0;cursor:pointer;box-shadow:0 4px 8px rgba(80,30,40,.22);animation:hpop .55s var(--ease-spring) both;animation-delay:calc(var(--i) * 70ms)}
 .hthumb .im{width:100%;height:100%;overflow:hidden}
 .hthumb img,.hthumb video,.hthumb .ph-tile{width:100%;height:100%;object-fit:cover;display:block;font-size:.8rem}
 .hthumb .ph-tile svg{display:none}
@@ -823,20 +823,31 @@ $("stackNext").onclick = () => throwCard(Math.random() > .5 ? 1 : -1);
   $("stack").addEventListener("pointerup", end);
   $("stack").addEventListener("pointercancel", end);
 })();
+/* точки сердца на равном расстоянии друг от друга по контуру */
+function heartPts(n){
+  const H = t => [16*Math.sin(t)**3, -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t))];
+  const dense = [], N = 720; let len = 0, prev = H(0); const acc = [0];
+  for (let i=1;i<=N;i++){ const p = H(Math.PI*2*i/N); len += Math.hypot(p[0]-prev[0], p[1]-prev[1]); acc.push(len); dense.push(p); prev = p; }
+  const out = []; let j = 0;
+  for (let k=0;k<n;k++){ const target = len*k/n; while (acc[j+1] < target) j++; out.push(dense[Math.max(0,j-1)] || H(0)); }
+  return out;
+}
 function buildHeart(){
   $("stack").hidden = true; $("stackNext").hidden = true; $("stackCount").textContent = "";
   $("t-stack").textContent = "все вместе";
-  const seq = STACK.map((it,i)=>[it,i]);
+  const ALL = [...FILM, ...GARLAND, ...STACK];
+  const seq = ALL.map((it,i)=>[it,i]);
   const n = seq.length;
   $("heartwall").innerHTML = seq.map(([it,i],k) => {
     const TPL = [[27,22],[73,22],[11,45],[89,45],[30,68],[70,68],[50,88],[50,42]];
     let x, y;
     if (n <= TPL.length){ x = (TPL[k][0]-50)/40*17; y = (TPL[k][1]-46)/40*17; }
-    else { const t = Math.PI*2*k/n; x = 16*Math.sin(t)**3; y = -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)); }
+    else { [x, y] = heartPts(n)[k]; }
     return `<button class="hthumb" type="button" data-i="${i}" style="left:${(50 + x/17*40).toFixed(2)}%;top:${(46 + y/17*40).toFixed(2)}%;--rot:${((k*41)%17)-8}deg;--i:${k}" aria-label="${it.caption||'фото'}"><div class="im">${media(it,i)}</div></button>`;
   }).join("");
+  $("heartwall").style.setProperty("--hw", n > 16 ? "15.5%" : n > 8 ? "19%" : "27%");
   $("heartwall").hidden = false;
-  $("heartwall").onclick = e => { const b = e.target.closest(".hthumb"); if (b) openLB(STACK[+b.dataset.i], +b.dataset.i); };
+  $("heartwall").onclick = e => { const b = e.target.closest(".hthumb"); if (b) openLB(ALL[+b.dataset.i], +b.dataset.i); };
   $("stackDone").hidden = false;
   const r = $("heartwall").getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height/2, 24);
 }

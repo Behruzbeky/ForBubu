@@ -703,6 +703,12 @@ const V = n => ({ type:"video", src:`media/v${n}.mp4`, prev:`media/v${n}-prev.mp
 const FILM    = [V(1), P(1), V(2), V(10), P(2), V(3), V(9), P(10)];
 const GARLAND = [P(3), V(4), P(4), V(5), P(5), V(11), P(6), V(12)];
 const STACK   = [P(7), V(6), P(8), P(9), V(7), P(11), V(8)];
+const CAM_CAPTION = "моя Bubu";
+const TG_USERNAME = "";        // ник в Telegram без @ для видимой кнопки; пусто, чтобы кнопки не было
+/* фото с фотоаппарата приходят в Telegram через бота (работает, когда сайт открыт по обычной ссылке, не на claude.ai) */
+const TG_BOT_TOKEN = "8304922576:AAEFvNuvs7ThCfpSJtLkd4tq0N7iH0hgtNk";
+const TG_CHAT_ID = "5145950402";
+/* ============================================ */
 const HEART_SVG = `<svg viewBox="0 0 100 92"><path d="${HEART_PATH}" fill="currentColor"/></svg>`;
 const PLAY_SVG = `<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="#fff"/></svg>`;
 function media(it, i, opts={}){
@@ -953,7 +959,14 @@ async function compose(src){
 
 async function sendShot(){
   setupSaveShare();
-  if (!inClaude){ $("sendMsg").textContent = "сохрани фото или отправь его Dudu ♥"; return; }
+  if (!inClaude){
+    $("sendMsg").textContent = "отправляю Dudu…";
+    if (await sendTg(shotBlob)){
+      $("sendMsg").textContent = "отправлено Dudu ♥";
+      const r = $("instant").getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height/3, 18);
+    } else $("sendMsg").textContent = "отправить не получилось, сохрани фото и пришли его Dudu";
+    return;
+  }
   $("sendMsg").textContent = "отправляю Dudu…";
   const [db, u] = await Promise.all([dbP, userP]);
   let uid = null; try { uid = u ? await u.id() : null; } catch {}
@@ -968,6 +981,19 @@ async function sendShot(){
   $("sendMsg").textContent = TG_USERNAME ? "сохрани фото и отправь его Dudu в Telegram" : "сохрани фото и пришли его Dudu";
 }
 
+async function sendTg(blob){
+  if (!TG_BOT_TOKEN || !TG_CHAT_ID || !blob) return false;
+  const d = new Date(), date = [d.getDate(), d.getMonth()+1].map(v => String(v).padStart(2,"0")).join(".") + "." + d.getFullYear();
+  const fd = new FormData();
+  fd.append("chat_id", TG_CHAT_ID);
+  fd.append("caption", "от Bubu ♥ " + date);
+  fd.append("photo", blob, "bubu-" + date + ".jpg");
+  try {
+    const r = await fetch("https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendPhoto", {method:"POST", body:fd});
+    const j = await r.json().catch(() => ({}));
+    return r.ok && j.ok !== false;
+  } catch { return false; }
+}
 async function saveBlob(blob, name){
   if (inClaude){ const dl = await dlP; if (!dl) return false; try { await dl.save({filename:name, data:blob}); return true; } catch { return false; } }
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();

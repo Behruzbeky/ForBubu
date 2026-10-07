@@ -132,7 +132,11 @@ h1.serif{font-family:var(--serif);font-weight:500;color:#7a2a3a;font-size:clamp(
 .lpaper{position:relative;width:100%;background-color:var(--page-paper);padding:clamp(28px,5vw,52px) clamp(22px,5vw,56px) 64px;display:flex;gap:clamp(20px,4vw,40px);align-items:center;flex-wrap:wrap;justify-content:center;border-radius:4px;box-shadow:0 14px 34px rgba(110,30,50,.2)}
 .screen.on .lpaper{animation:sheetUp .6s var(--ease-out) both}
 @keyframes sheetUp{from{opacity:0;transform:translateY(60px) rotate(1.5deg) scale(.96)}to{opacity:1;transform:none}}
-.ltext{flex:1 1 300px;min-width:0;max-width:52ch;font-family:var(--serif);font-weight:600;font-size:clamp(1.05rem,2.3vw,1.28rem);line-height:1.55;color:#3a2629;text-align:center;margin:0}
+.lbody{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;align-items:center;gap:18px}
+.llink{display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.llink svg{width:20px;height:20px}
+.screen.on .llink{animation:rise .5s var(--ease-out) 1.2s both}
+.ltext{flex:0 1 auto;width:100%;min-width:0;max-width:52ch;font-family:var(--serif);font-weight:600;font-size:clamp(1.05rem,2.3vw,1.28rem);line-height:1.55;color:#3a2629;text-align:center;margin:0}
 .ltext .w{display:inline-block;opacity:0;transform:translateY(6px)}
 .screen.on .ltext .w{animation:wordIn .4s var(--ease-out) forwards;animation-delay:calc(var(--k) * 22ms + 320ms)}
 @keyframes wordIn{to{opacity:1;transform:none}}
@@ -425,7 +429,7 @@ body.end-mode .rain{opacity:1}
           <div class="ph" id="photo"></div>
           <figcaption><p>Я тебя люблю</p></figcaption>
         </figure>
-        <p class="ltext" id="ltext"></p>
+        <div class="lbody"><p class="ltext" id="ltext"></p><a class="pill llink" id="llink" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></svg><span id="llinkText"></span></a></div>
         <img class="lsticker" id="lsticker" src="stickers/miss.webp" alt="" width="498" height="498">
       </article>
       <button class="round back" type="button" data-go="s-envs" data-dir="-1" aria-label="Назад к конвертам">
@@ -548,11 +552,11 @@ body.end-mode .rain{opacity:1}
 
 <script>
 /* ================= НАСТРОЙКИ ================= */
-const PASSWORD = "0705";                       // её день рождения, 7 мая (подойдёт и 07.05, 7.05, 7 мая)
-const HINT = "подсказка: твой день рождения (ДДММ)";
+const PASSWORD = "67";                         // её любимое число
+const HINT = "подсказка: твоё любимое число (двузначное)";
 const PHOTO = "";                              // фото для полароида
 const LETTERS = [
-  { label:"скучаешь по мне", sticker:"miss",  text:"Если ты открыла этот конверт, значит, я сейчас не могу быть рядом с тобой. Но помни: это временно. У нас всё получится, мы со всем справимся, просто нужно чуть-чуть подождать. А пока зайди в наш плейлист, послушай наши любимые песни и посмотри в окно: мы под одним небом, хоть и далеко. Я люблю тебя. И когда мы снова встретимся, я обниму тебя так сильно, что ты меня никогда не забудешь. Твой любимый Лучик." },
+  { label:"скучаешь по мне", sticker:"miss",  link:{url:"https://open.spotify.com/playlist/7qWvhOU2IT9SXjXClpmJPv", label:"открыть наш плейлист"}, text:"Если ты открыла этот конверт, значит, я сейчас не могу быть рядом с тобой. Но помни: это временно. У нас всё получится, мы со всем справимся, просто нужно чуть-чуть подождать. А пока зайди в наш плейлист, послушай наши любимые песни и посмотри в окно: мы под одним небом, хоть и далеко. Я люблю тебя. И когда мы снова встретимся, я обниму тебя так сильно, что ты меня никогда не забудешь. Твой любимый Лучик." },
   { label:"тебе грустно",    sticker:"sad",   text:"Моя Bubu, если ты открыла этот конверт, значит, тебе сейчас грустно. Тогда давай закутаемся потеплее и будем вместе ничего не делать. Я буду рядом: если нужно помолчать, я буду молчать с тобой, пока ты не захочешь поговорить. Я знаю, ты очень сильная и справлялась и не с таким. А теперь ты не одна. Расскажи мне всё." },
   { label:"ты счастлива",    sticker:"happy", text:"Ты счастлива? Значит, и я тоже! Улыбнись ещё раз, специально для меня. Запомни этот день: где ты, что случилось, кто рядом. А потом расскажи мне всё-всё, с подробностями. Я хочу быть частью каждой твоей радости." },
   { label:"нужны обнимашки", sticker:"hug",   text:"Держи: это самые большие медвежьи обнимашки на свете. Обними себя покрепче и представь, что это я. Считается! А при встрече я отдам тебе все обнимашки, которые задолжал. С процентами." },
@@ -647,7 +651,7 @@ let tries = 0; const WRONG = ["не тот пароль, Bubu","Dudu качае�
 $("passForm").addEventListener("submit", e => {
   e.preventDefault();
   const raw = $("pass").value.trim().toLowerCase(), digits = raw.replace(/\D/g, "");
-  const ok = raw === PASSWORD.toLowerCase() || digits === PASSWORD || digits.padStart(4, "0") === PASSWORD || /^0?7\s*ма[йя]$/.test(raw);
+  const ok = raw === PASSWORD.toLowerCase() || digits === PASSWORD;
   if (ok){
     $("err").textContent = "";
     const r = $("pass").getBoundingClientRect(); burst(r.left + r.width/2, r.top, 22);
@@ -677,6 +681,8 @@ function openLetter(i, btn){
   $("ltitle").textContent = "Открой, когда " + L.label;
   words($("ltext"), L.text);
   $("lsticker").src = "stickers/" + L.sticker + ".webp";
+  $("llink").hidden = !L.link;
+  if (L.link){ $("llink").href = L.link.url; $("llinkText").textContent = L.link.label; }
   $("polaroid").hidden = !L.photo;
   $("photo").innerHTML = PHOTO ? `<img src="${PHOTO}" alt="Мы вместе">` : `<span>тут будет наше фото</span>`;
   btn.classList.add("opening", "read");

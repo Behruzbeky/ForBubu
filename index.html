@@ -376,6 +376,63 @@ body.end-mode .rain{opacity:1}
 .owner-link{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-size:.95rem;min-height:44px;min-width:0;padding:8px 18px}
 .link{background:none;border:0;font:600 1rem var(--serif);color:#6e4f4a;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px;padding:0 8px}
 
+/* ---------- конверты с замком, «я скучаю», вопрос дня ---------- */
+.envs{padding-bottom:22px}
+.env.locked .roof,.env.locked .body{filter:saturate(.35) brightness(1.18)}
+.env.locked .sheet{transform:translateY(8%)}
+.env.locked .lbl b{color:var(--rose)}
+.env .seal{left:50%;top:44%;width:30px;height:30px;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;color:#fde7ec;
+  background:radial-gradient(circle at 35% 30%,#d9566f,#a8243f 60%,#7e1530);box-shadow:0 2px 4px rgba(80,10,30,.35),inset 0 0 0 3px rgba(255,255,255,.12)}
+.env .seal svg{width:14px;height:14px}
+.env.locked:hover{transform:rotate(var(--r,0deg)) translateY(-3px)}
+.env.nope{animation:nope .5s var(--ease-out)}
+@keyframes nope{20%{transform:rotate(var(--r)) translateX(-7px)}45%{transform:rotate(var(--r)) translateX(6px)}70%{transform:rotate(var(--r)) translateX(-3px)}}
+.env-note{font-family:var(--script);font-weight:600;color:var(--rose);font-size:1.3rem;line-height:1.15;margin:0;max-width:30ch;min-height:0;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s var(--ease-out)}
+.env-note.on{opacity:1;transform:none}
+.env-note:empty{display:none}
+.miss-wrap{position:relative;display:inline-flex}
+.miss-msg{position:absolute;left:50%;bottom:calc(100% + 12px);z-index:3;width:max-content;max-width:min(240px,70vw);padding:8px 14px;border-radius:16px;background:#fffdf9;
+  font-family:var(--script);font-weight:600;color:var(--rose);font-size:1.2rem;line-height:1.15;text-align:center;box-shadow:0 8px 18px rgba(110,30,50,.18);
+  opacity:0;transform:translate(-50%,6px) scale(.92);transform-origin:50% 100%;pointer-events:none;transition:opacity .25s,transform .35s var(--ease-spring)}
+.miss-msg::after{content:"";position:absolute;left:50%;top:100%;margin-left:-7px;border:7px solid transparent;border-top-color:#fffdf9}
+.miss-msg.on{opacity:1;transform:translate(-50%,0) scale(1)}
+.extras{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
+.extras .pill{min-width:0;min-height:46px;padding:8px 20px;font-size:1.05rem;display:inline-flex;align-items:center;gap:8px}
+.miss-btn svg{width:18px;height:18px;color:#e0536f;flex:none}
+.miss-btn.beat svg{animation:beat .9s var(--ease-out)}
+@keyframes beat{15%{transform:scale(1.35)}30%{transform:scale(.9)}45%{transform:scale(1.2)}70%{transform:none}}
+.qmark{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--wine-3);color:#fff;font:700 .85rem/1 var(--serif);flex:none}
+.qdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0536f;box-shadow:0 0 0 2px rgba(255,255,255,.8);margin-left:-2px;animation:pulse 2.2s var(--ease-out) infinite}
+@media (max-width:560px){.extras{margin-right:56px}.extras .pill{padding:8px 16px}}
+
+.q-kicker{font-size:1.45rem;letter-spacing:.02em;margin:0}
+.q-text{font-family:var(--script);font-weight:700;color:var(--rose);font-size:clamp(2rem,7vw,2.9rem);line-height:1.05;margin:0;max-width:18ch;text-wrap:balance}
+.q-form,.q-done{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+.q-form textarea{width:min(460px,100%);min-height:132px;resize:vertical;font-family:var(--script);font-weight:600;font-size:1.45rem;line-height:34px;color:var(--ink);padding:2px 16px 8px;border:2px solid #4b3b34;border-radius:16px;
+  background:repeating-linear-gradient(#fffaf6 0 33px,#f1d3da 33px 34px);background-attachment:local;transition:border-color var(--t-micro),box-shadow var(--t-micro)}
+.q-form textarea::placeholder{color:#b99a96}
+.q-form textarea:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 4px rgba(142,42,64,.15)}
+.q-form .pill[disabled]{opacity:.6;cursor:default}
+.q-msg{font-family:var(--script);font-weight:600;color:var(--rose);font-size:1.3rem;margin:0;min-height:1.2em}
+.q-answer{font-family:var(--script);font-weight:600;font-size:1.5rem;line-height:1.3;color:var(--ink);margin:0;white-space:pre-wrap;overflow-wrap:anywhere;
+  width:min(420px,100%);padding:18px 20px;background:#fff6c9;box-shadow:0 8px 16px rgba(90,60,20,.16);transform:rotate(-1.5deg);animation:rise .5s var(--ease-out) both}
+
+/* голосовое в письме */
+.vnote{display:flex;align-items:center;gap:12px;width:min(340px,100%);padding:8px 16px 8px 8px;border-radius:999px;background:rgba(255,253,249,.8);box-shadow:0 8px 18px rgba(110,30,50,.14),inset 0 0 0 1px rgba(255,255,255,.9)}
+.vplay{width:48px;height:48px;flex:none}
+.vplay svg{width:20px;height:20px}
+.vplay .i-pause,.vnote.playing .vplay .i-play{display:none}
+.vnote.playing .vplay .i-pause{display:block}
+.vmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.vlabel{font-family:var(--script);font-weight:700;color:var(--rose);font-size:1.15rem;line-height:1;text-align:left}
+.vwave{display:flex;align-items:center;gap:2px;height:26px;cursor:pointer;border-radius:4px}
+.vwave:focus-visible{outline:2px solid var(--wine-3);outline-offset:3px}
+.vwave i{flex:1;height:var(--h);min-height:3px;border-radius:2px;background:#e8bfca;transition:background .2s}
+.vwave i.on{background:var(--wine-3)}
+.vnote.playing .vwave i.on:last-child,.vnote.playing .vwave i.on + i:not(.on){animation:vbar .5s ease-in-out infinite alternate}
+@keyframes vbar{to{transform:scaleY(.6)}}
+.vtime{font:600 .9rem var(--serif);color:#6e4f4a;font-variant-numeric:tabular-nums;min-width:2.4em;text-align:right}
+
 /* ---------- подарок, дождь из лилий, альбом ---------- */
 .paperbg{opacity:0;background-color:#f7ecd9;background-image:radial-gradient(ellipse at 50% 42%,#fdf7ec 0%,#f8eedd 45%,#f1e0c4 100%)}
 body.gift-mode .paperbg{opacity:1}
@@ -542,6 +599,11 @@ body.album-mode .ldrift span{animation-play-state:running}
     <div class="card grain"><div class="card-in">
       <span class="flower" data-flower></span>
       <div class="envs" id="envs"></div>
+      <p class="env-note" id="envNote" role="status" aria-live="polite"></p>
+      <div class="extras">
+        <span class="miss-wrap"><button class="pill miss-btn" type="button" id="missBtn"><svg viewBox="0 0 100 92" aria-hidden="true"><path d="M50 90C20 66 0 48 0 26C0 10 12 0 26 0C38 0 46 8 50 16C54 8 62 0 74 0C88 0 100 10 100 26C100 48 80 66 50 90Z" fill="currentColor"/></svg><span>я скучаю</span></button><span class="miss-msg" id="missMsg" role="status" aria-live="polite"></span></span>
+        <button class="pill qday-btn" type="button" data-go="s-question"><span class="qmark" aria-hidden="true">?</span><span>вопрос дня</span><i class="qdot" id="qDot" hidden></i></button>
+      </div>
       <button class="round next" type="button" data-go="s-final" aria-label="Дальше, к последнему письму">
         <svg viewBox="0 0 24 24"><path d="M7 4.5l12 7.5-12 7.5z" fill="#fff"/></svg>
       </button>
@@ -557,13 +619,38 @@ body.album-mode .ldrift span{animation-play-state:running}
           <div class="ph" id="photo"></div>
           <figcaption><p>Я тебя люблю</p></figcaption>
         </figure>
-        <div class="lbody"><p class="ltext" id="ltext"></p><a class="pill llink" id="llink" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></svg><span id="llinkText"></span></a></div>
+        <div class="lbody"><div class="vnote" id="vnote" hidden>
+          <button class="round vplay" type="button" id="vplay" aria-label="Слушать голосовое от Dudu"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5l12 7.5-12 7.5z" fill="#fff"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="#fff"/></svg></button>
+          <div class="vmain"><span class="vlabel">голосовое от Dudu</span><span class="vwave" id="vwave" role="slider" aria-label="Перемотка" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"></span></div>
+          <span class="vtime" id="vtime">0:00</span>
+          <audio id="vaudio" preload="none"></audio>
+        </div><p class="ltext" id="ltext"></p><a class="pill llink" id="llink" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></svg><span id="llinkText"></span></a></div>
         <img class="lsticker" id="lsticker" src="stickers/miss.webp" alt="" width="498" height="498">
       </article>
       <button class="round back" type="button" data-go="s-envs" data-dir="-1" aria-label="Назад к конвертам">
         <svg viewBox="0 0 24 24"><path d="M20 12H8M13 6l-6 6 6 6" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
+  </section>
+
+  <!-- 4b. вопрос дня -->
+  <section class="screen" id="s-question" aria-labelledby="t-question">
+    <div class="card grain"><div class="card-in">
+      <span class="flower" data-flower></span>
+      <p class="kicker q-kicker" id="qDate" data-a style="--i:0">вопрос дня</p>
+      <h2 class="q-text" id="t-question" data-a style="--i:1"></h2>
+      <form class="q-form" id="qForm" autocomplete="off" data-a style="--i:2">
+        <label class="sr" for="qAnswer">Твой ответ</label>
+        <textarea id="qAnswer" rows="4" maxlength="1500" placeholder="напиши сюда…"></textarea>
+        <button class="pill" type="submit" id="qSend">отправить Dudu</button>
+        <p class="q-msg" id="qMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div class="q-done" id="qDone" hidden>
+        <p class="q-answer" id="qMine"></p>
+        <p class="q-msg">отправлено Dudu ♥ завтра будет новый вопрос</p>
+      </div>
+      <button class="link" type="button" data-go="s-envs" data-dir="-1" data-a style="--i:3">к конвертам</button>
+    </div></div>
   </section>
 
   <!-- 5. финал -->
@@ -739,6 +826,28 @@ const LETTERS = [
   { label:"нужны обнимашки", sticker:"hug",   text:"Держи: это самые большие медвежьи обнимашки на свете. Обними себя покрепче и представь, что это я. Считается! А при встрече я отдам тебе все обнимашки, которые задолжал. С процентами." },
   { label:"мы поссорились",  sticker:"fight", photo:true, text:"Если мы поссорились, давай сначала выдохнем. Мне не важно, кто из нас прав, мне важно, чтобы ты была рядом. Прости за то, что я сказал сгоряча. И, пожалуйста, не расстраивайся: ты же обещала мне не болеть. Если будешь переживать, опять всё начнёт болеть, а нам это совсем не нужно. Давай спокойно поговорим и помиримся." }
 ];
+/* письма с замком: open:"ГГГГ-ММ-ДД" — до этой даты конверт закрыт и показывает, когда откроется.
+   голосовое: voice:"media/voice-1.m4a" — в письме появится плеер (лучше .m4a или .mp3, их играют и iPhone, и Android). */
+LETTERS.push(
+  { label:"у тебя день рождения", sticker:"happy", open:"2027-05-07", text:"С днём рождения, моя Bubu! Я положил это письмо сюда ещё в октябре и всё это время ждал, когда ты его откроешь. Сегодня твой день, и я хочу, чтобы ты улыбалась с утра и до самой ночи. Спасибо, что ты есть, что ты выбрала меня и что ты такая, какая есть. Загадай желание: я сделаю всё, чтобы оно сбылось. Я тебя очень люблю. Твой Лучик." }
+);
+/* вопрос дня: каждый день новый по порядку, её ответ приходит Dudu в Telegram */
+const QUESTIONS = [
+  "Что тебе сегодня снилось?", "Какой момент с нами ты вспоминаешь чаще всего?", "Что мы сделаем первым делом, когда встретимся?",
+  "Какая песня сегодня у тебя в голове?", "Что сегодня заставило тебя улыбнуться?", "Куда бы ты хотела поехать со мной?",
+  "Что ты сейчас видишь в окно?", "Что самое вкусное ты сегодня ела?", "За что ты сегодня можешь себя похвалить?",
+  "Какое моё сообщение ты помнишь до сих пор?", "Что тебя сегодня расстроило? Расскажи, я выслушаю.", "Какой фильм ты хочешь посмотреть вместе?",
+  "Опиши свой идеальный день со мной.", "Что тебе во мне нравится больше всего?", "Какой подарок ты бы хотела получить просто так?",
+  "Чего ты сейчас ждёшь больше всего?", "Какой запах напоминает тебе обо мне?", "Что бы ты сказала мне прямо сейчас, если бы я был рядом?",
+  "Какое у тебя сегодня настроение одним словом?", "Что нового ты сегодня узнала?", "О чём ты мечтаешь, когда засыпаешь?",
+  "Какой мой поступок тебе запомнился больше всего?", "Какое блюдо мы приготовим вместе?", "Что тебя сейчас больше всего волнует?",
+  "Если бы у нас был выходной вдвоём, как бы мы его провели?", "Какая фотография с нами тебе нравится больше всех?", "Что ты хочешь, чтобы я знал о тебе, но ещё не знаю?",
+  "Какой твой любимый момент дня?", "Что ты хочешь попробовать в первый раз вместе со мной?", "Каким ты видишь наш дом через несколько лет?",
+  "Какая у тебя сегодня погода и как она тебе?", "Что ты сейчас читаешь или смотришь?", "Какое слово лучше всего описывает нас?",
+  "Чему ты научилась у меня?", "Что тебе сегодня было трудно?", "Под какую песню был бы наш первый танец?",
+  "Что бы ты написала мне в записке на холодильник?", "За что ты сегодня благодарна?", "Какое место в твоём городе ты хочешь мне показать?",
+  "Чего тебе сейчас хочется больше: обнимашек или поцелуя?"
+];
 const FINAL = "Вот и все письма. Я писал их долго, зачёркивал и начинал заново, потому что хотел, чтобы у тебя всегда было что-то от меня, даже когда я далеко. Возвращайся сюда когда захочешь. Конверты не закончатся, а я не перестану тебя любить. Твой Лучик.";
 /* ============================================ */
 
@@ -805,6 +914,7 @@ function show(id){
   document.querySelectorAll(".screen.leaving").forEach(s => s.classList.remove("leaving"));
   prev.classList.remove("on"); prev.classList.add("leaving");
   if (prev.id === "s-cam") stopLive();
+  if (prev.id === "s-letter") $("vaudio").pause();
   leaveTimer = setTimeout(() => {
     prev.classList.remove("leaving");
     document.body.classList.toggle("letter-mode", id === "s-letter");
@@ -814,7 +924,7 @@ function show(id){
     next.classList.add("on"); current = next;
     window.scrollTo({top:0, behavior: reduce ? "auto" : "smooth"});
     const f = next.querySelector("h1, h2, .ltext, .final-text"); if (f){ f.setAttribute("tabindex","-1"); f.focus({preventScroll:true}); }
-    $("s-envs").querySelector(".next").classList.toggle("pulse", id === "s-envs" && readCount() === LETTERS.length);
+    $("s-envs").querySelector(".next").classList.toggle("pulse", id === "s-envs" && readCount() >= openableCount());
     if (onShow[id]) onShow[id]();
     if (TG_SCREENS[id]){ tgLast = TG_SCREENS[id][0].replace(/^\S+\s/, ""); tgNote(TG_SCREENS[id][0], TG_SCREENS[id][1], id); }
   }, reduce ? 0 : 190);
@@ -879,18 +989,40 @@ $("passForm").addEventListener("submit", e => {
 });
 
 /* конверты */
-const tilts = [-3,2,-2,3,-1];
+const tilts = [-3,2,-2,3,-1,2,-2,3];
+const pad2 = n => String(n).padStart(2, "0");
+const todayStr = () => { const d = new Date(); return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate()); };
+const MONTHS = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const dayMonth = iso => { const [, m, d] = iso.split("-").map(Number); return d + " " + MONTHS[m-1]; };
+const daysUntil = iso => { const [y, m, d] = iso.split("-").map(Number), t = new Date(); return Math.round((new Date(y, m-1, d) - new Date(t.getFullYear(), t.getMonth(), t.getDate())) / 864e5); };
+const plural = (n, f) => f[(n % 10 === 1 && n % 100 !== 11) ? 0 : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1 : 2];
+const isLocked = L => !!L.open && todayStr() < L.open;
 const readCount = () => document.querySelectorAll(".env.read").length;
-LETTERS.forEach((L,i) => {
-  const b = document.createElement("button");
-  b.type = "button"; b.className = "env"; b.style.setProperty("--r", tilts[i]+"deg"); b.style.setProperty("--i", i);
-  b.setAttribute("aria-label", "Открой, когда " + L.label);
-  b.innerHTML = `<span class="roof"></span><span class="sheet"></span><span class="tag">для тебя</span><span class="body"></span>
-    <span class="lbl"><small>открой, когда</small><b>${L.label}</b></span>
-    <span class="seen"><svg viewBox="0 0 100 92"><path d="${HEART_PATH}" fill="currentColor"/></svg></span>`;
-  b.onclick = () => openLetter(i, b);
-  $("envs").appendChild(b);
-});
+const openableCount = () => LETTERS.filter(L => !isLocked(L)).length;
+function buildEnvs(){
+  $("envs").textContent = "";
+  LETTERS.forEach((L,i) => {
+    const b = document.createElement("button"), locked = isLocked(L);
+    b.type = "button"; b.className = "env" + (locked ? " locked" : ""); b.style.setProperty("--r", tilts[i % tilts.length]+"deg"); b.style.setProperty("--i", i);
+    b.setAttribute("aria-label", locked ? `Письмо «${L.label}», откроется ${dayMonth(L.open)}` : "Открой, когда " + L.label);
+    b.innerHTML = `<span class="roof"></span><span class="sheet"></span><span class="tag">для тебя</span><span class="body"></span>
+      <span class="lbl">${locked ? `<small>откроется</small><b>${dayMonth(L.open)}</b>` : `<small>открой, когда</small><b>${L.label}</b>`}</span>
+      ${locked ? `<span class="seal"><svg viewBox="0 0 100 92"><path d="${HEART_PATH}" fill="currentColor"/></svg></span>` : ""}
+      <span class="seen"><svg viewBox="0 0 100 92"><path d="${HEART_PATH}" fill="currentColor"/></svg></span>`;
+    b.onclick = () => locked ? lockedTap(L, b) : openLetter(i, b);
+    $("envs").appendChild(b);
+  });
+}
+buildEnvs();
+let envNoteT;
+function lockedTap(L, b){
+  b.classList.remove("nope"); void b.offsetWidth; b.classList.add("nope");
+  const n = daysUntil(L.open);
+  $("envNote").textContent = `Это письмо откроется ${dayMonth(L.open)}. ${n === 1 ? "Осталось совсем чуть-чуть, до завтра ♥" : `Осталось ${n} ${plural(n, ["день","дня","дней"])} ♥`}`;
+  $("envNote").classList.remove("on"); void $("envNote").offsetWidth; $("envNote").classList.add("on");
+  clearTimeout(envNoteT); envNoteT = setTimeout(() => $("envNote").classList.remove("on"), 4200);
+  tgNote(`🔒 Пыталась открыть письмо «${L.label}» раньше времени (откроется ${dayMonth(L.open)})`, false, "early" + L.open);
+}
 function openLetter(i, btn){
   const L = LETTERS[i];
   $("ltitle").textContent = "Открой, когда " + L.label;
@@ -899,6 +1031,7 @@ function openLetter(i, btn){
   words($("ltext"), L.text);
   $("lsticker").src = "stickers/" + L.sticker + ".webp";
   $("llink").hidden = !L.link;
+  setVoice(L);
   if (L.link){ $("llink").href = L.link.url; $("llinkText").textContent = L.link.label; }
   $("polaroid").hidden = !L.photo;
   $("photo").innerHTML = PHOTO ? `<img src="${PHOTO}" alt="Мы вместе">` : `<span>тут будет наше фото</span>`;
@@ -907,6 +1040,31 @@ function openLetter(i, btn){
   setTimeout(() => { show("s-letter"); btn.classList.remove("opening"); }, reduce ? 0 : 380);
 }
 words($("finalText"), FINAL);
+
+/* голосовое в письме: свой плеер с «волной» */
+const VBARS = 30, va = $("vaudio");
+$("vwave").innerHTML = Array.from({length:VBARS}, (_, k) => `<i style="--h:${Math.round(26 + 74*Math.abs(Math.sin(k*1.7) * Math.cos(k*.45)))}%"></i>`).join("");
+const fmtT = t => isFinite(t) && t > 0 ? Math.floor(t/60) + ":" + pad2(Math.floor(t % 60)) : "0:00";
+let vLabel = "";
+function vSync(){
+  const p = va.duration ? va.currentTime / va.duration : 0, n = Math.round(p * VBARS);
+  $("vwave").querySelectorAll("i").forEach((b, k) => b.classList.toggle("on", k < n));
+  $("vwave").setAttribute("aria-valuenow", Math.round(p * 100));
+  $("vtime").textContent = fmtT(va.currentTime > 0 ? va.currentTime : va.duration);
+}
+function setVoice(L){
+  va.pause();
+  $("vnote").hidden = !L.voice; $("vnote").classList.remove("playing");
+  if (!L.voice) { va.removeAttribute("src"); return; }
+  vLabel = L.label; va.src = L.voice; va.preload = "metadata"; va.load(); vSync();
+}
+["timeupdate","loadedmetadata","durationchange"].forEach(ev => va.addEventListener(ev, vSync));
+va.addEventListener("play", () => { $("vnote").classList.add("playing"); tgNote("🎧 Слушает голосовое в письме «" + vLabel + "»", true, "voice" + vLabel); });
+va.addEventListener("pause", () => $("vnote").classList.remove("playing"));
+va.addEventListener("ended", () => { va.currentTime = 0; vSync(); });
+$("vplay").onclick = () => { if (va.paused) va.play().catch(() => {}); else va.pause(); };
+$("vwave").addEventListener("click", e => { if (!va.duration) return; const r = $("vwave").getBoundingClientRect(); va.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * va.duration; });
+$("vwave").addEventListener("keydown", e => { if (!va.duration) return; if (e.key === "ArrowRight") va.currentTime = Math.min(va.duration, va.currentTime + 5); else if (e.key === "ArrowLeft") va.currentTime = Math.max(0, va.currentTime - 5); else return; e.preventDefault(); });
 
 
 /* ================= ГАЛЕРЕЯ =================
@@ -985,6 +1143,7 @@ const TG_SCREENS = {
   "s-cam":    ["📷 Дошла до фотоаппарата", false],
   "s-end":    ["❤️ Дошла до финала «Я тебя люблю»", true],
   "s-gift":   ["🎁 Дошла до подарка", true],
+  "s-question":["❓ Открыла вопрос дня", false],
   "s-album":  ["📸 Смотрит альбом", false],
 };
 const HEART_SVG = `<svg viewBox="0 0 100 92"><path d="${HEART_PATH}" fill="currentColor"/></svg>`;
@@ -1439,6 +1598,68 @@ document.addEventListener("pointerdown", e => {
   };
   addEventListener("pointerup", up); addEventListener("pointercancel", up);
 }, {passive:true});
+
+/* ================= «Я СКУЧАЮ» И ВОПРОС ДНЯ =================
+   Это её осознанные действия, поэтому они приходят Dudu всегда (даже с устройства, отмеченного ?me). */
+async function tgSend(text, loud = true){
+  if (!TG_BOT_TOKEN || !TG_CHAT_ID || inClaude || location.protocol === "file:") return false;
+  try {
+    const r = await fetch("https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendMessage", {method:"POST", body:new URLSearchParams({chat_id:TG_CHAT_ID, text, disable_notification: loud ? "false" : "true"})});
+    const j = await r.json().catch(() => ({}));
+    return r.ok && j.ok !== false;
+  } catch { return false; }
+}
+const store = {
+  get(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+
+/* «я скучаю»: сердечки у неё, сообщение у Dudu (не чаще раза в 20 секунд) */
+let missSentAt = 0, missMsgT;
+const MISS_REPLIES = ["Dudu уже знает, что ты скучаешь ♥", "он тоже очень скучает ♥", "обнимаю тебя через все километры ♥", "скоро увидимся, обещаю ♥"];
+$("missBtn").onclick = () => {
+  const b = $("missBtn"), r = b.getBoundingClientRect();
+  burst(r.left + r.width/2, r.top + r.height/2, 24);
+  b.classList.remove("beat"); void b.offsetWidth; b.classList.add("beat");
+  let st = store.get("bubu-miss", {}); if (st.d !== todayStr()) st = {d: todayStr(), n: 0};
+  st.n++; store.set("bubu-miss", st);
+  let msg;
+  if (Date.now() - missSentAt > 20000){
+    missSentAt = Date.now();
+    tgSend(`💗 Bubu скучает по тебе!${st.n > 1 ? ` (сегодня уже ${st.n}-й раз)` : ""}`);
+    msg = MISS_REPLIES[(st.n - 1) % MISS_REPLIES.length];
+  } else msg = "он уже знает ♥ и тоже скучает";
+  const m = $("missMsg"); m.textContent = msg; m.classList.remove("on"); void m.offsetWidth; m.classList.add("on");
+  clearTimeout(missMsgT); missMsgT = setTimeout(() => m.classList.remove("on"), 3800);
+};
+
+/* вопрос дня */
+const dayIndex = () => { const t = new Date(); return Math.round((new Date(t.getFullYear(), t.getMonth(), t.getDate()) - new Date(2026, 0, 1)) / 864e5); };
+const todayQ = () => QUESTIONS[((dayIndex() % QUESTIONS.length) + QUESTIONS.length) % QUESTIONS.length];
+const qAnswered = () => { const st = store.get("bubu-q", {}); return st.d === todayStr() ? st : null; };
+function qSync(){
+  const t = new Date(), done = qAnswered();
+  $("qDate").textContent = "вопрос дня · " + t.getDate() + " " + MONTHS[t.getMonth()];
+  $("t-question").textContent = todayQ();
+  $("qForm").hidden = !!done; $("qDone").hidden = !done;
+  if (done) $("qMine").textContent = done.a;
+  $("qDot").hidden = !!done;
+}
+qSync();
+onShow["s-question"] = () => { qSync(); $("qMsg").textContent = ""; };
+onShow["s-envs"] = () => qSync();
+$("qForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const a = $("qAnswer").value.trim();
+  if (!a){ const f = $("qAnswer"); f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake"); f.focus(); return; }
+  $("qSend").disabled = true; $("qMsg").textContent = "отправляю…";
+  const ok = await tgSend(`❓ Вопрос дня (${todayStr().split("-").reverse().join(".")}):\n${todayQ()}\n\n💬 Bubu: ${a}`);
+  $("qSend").disabled = false;
+  if (!ok){ $("qMsg").textContent = "не получилось отправить, попробуй ещё раз"; return; }
+  store.set("bubu-q", {d: todayStr(), a});
+  $("qAnswer").value = ""; qSync();
+  const r = $("qMine").getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height/2, 22);
+});
 
 /* ================= ФОТО С ФОТОАППАРАТА В АЛЬБОМЕ =================
    Альбом — это пустые рамки. Каждое фото, снятое на сайте, занимает следующую рамку (хранится на её телефоне).

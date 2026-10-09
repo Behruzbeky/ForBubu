@@ -423,17 +423,29 @@ body.album-mode .ldrift span{animation-play-state:running}
 @media (min-width:980px){.album{columns:4;column-gap:26px}}
 .apol{display:block;width:100%;break-inside:avoid;margin:0 0 16px;border:0;cursor:pointer;background:#fffdf9;padding:8px 8px 30px;box-shadow:0 10px 18px rgba(90,50,30,.18),0 1px 2px rgba(90,50,30,.14);transform:translate(var(--jx),var(--jy)) rotate(var(--rot));opacity:0;text-align:center}
 @media (min-width:640px){.apol{padding:12px 12px 42px;margin-bottom:24px}}
-.apol .im{position:relative;overflow:hidden;background:#efe6dc;aspect-ratio:var(--ar,auto)}
+.apol .im{display:block;position:relative;overflow:hidden;background:#efe6dc;aspect-ratio:var(--ar,auto)}
 .apol[style*="--ar"] img{height:100%}
 .apol .im::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);pointer-events:none}
 .apol img{display:block;width:100%;height:auto;object-fit:cover;opacity:0;filter:brightness(.35) sepia(.9) blur(6px)}
 .apol .cap{display:block;font-family:var(--script);font-weight:600;font-size:1.25rem;color:var(--ink);line-height:1.1;margin:8px 0 -22px;min-height:1em}
 .album.play .apol{animation:apolIn .7s var(--ease-spring) both;animation-delay:var(--d)}
 .album.play .apol img{animation:develop 2.2s ease-out both;animation-delay:calc(var(--d) + .45s)}
+.album.done .apol{animation:none;opacity:1}
+.album.done .apol img{animation:none;opacity:1;filter:none}
+.album.done .apol.new{animation:apolIn .7s var(--ease-spring) .35s both}
+.album.done .apol.new img{animation:develop 2.6s ease-out 1s both}
 @keyframes apolIn{from{opacity:0;transform:translate(var(--jx),calc(var(--jy) - 26px)) rotate(calc(var(--rot) * -1.6)) scale(1.12)}to{opacity:1;transform:translate(var(--jx),var(--jy)) rotate(var(--rot))}}
 @keyframes develop{0%{opacity:0;filter:brightness(.35) sepia(.9) blur(6px)}25%{opacity:1}100%{opacity:1;filter:none}}
 @media (hover:hover){.album.play .apol{transition:transform .35s var(--ease-out),box-shadow .35s}.apol:hover{transform:translate(var(--jx),calc(var(--jy) - 4px)) rotate(0deg) scale(1.03);box-shadow:0 16px 26px rgba(90,50,30,.24)}}
 .apol:focus-visible{outline:2px solid var(--wine-3);outline-offset:4px}
+.apol.cam .cap{color:#8e2a40;font-weight:700;font-size:1.35rem}
+.apol.empty .im{background:#f8efe6}
+.apol.empty .slot{position:absolute;inset:7%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px dashed #e3b4bf;border-radius:4px;padding:6px;text-align:center}
+.apol.empty .slot svg{width:42%;max-width:64px;height:auto;margin-bottom:2px}
+.apol.empty .slot b{font-family:var(--script);font-weight:700;color:#8e2a40;font-size:clamp(1.05rem,4.2vw,1.35rem);line-height:1.05}
+.apol.empty .slot small{font-family:var(--script);font-weight:500;color:#9c6a64;font-size:clamp(.95rem,3.6vw,1.1rem);line-height:1.1}
+.album.play .apol.empty .slot svg{animation:camWiggle 2.6s ease-in-out 2s infinite}
+@keyframes camWiggle{0%,70%,100%{transform:none}78%{transform:rotate(-8deg)}86%{transform:rotate(6deg)}93%{transform:rotate(-3deg)}}
 .album-head,.album-nav{opacity:0}
 .album.play ~ .album-nav,.album-head.play{animation:rise .6s var(--ease-out) both}
 .album.play ~ .album-nav{animation-delay:1.6s}
@@ -783,9 +795,10 @@ function words(el, text){
 }
 
 /* навигация между экранами */
-let current = $("s-lock"), leaveTimer;
+let current = $("s-lock"), leaveTimer, camReturn = "";
 const onShow = {};
 function show(id){
+  if (id === "s-end" && current.id === "s-cam" && camReturn){ id = "s-album"; camReturn = ""; }
   const next = $(id); if (!next || next === current) return;
   clearTimeout(leaveTimer);
   const prev = current;
@@ -1246,6 +1259,7 @@ $("camInput").addEventListener("change", async () => {
 async function finishShot(src){
   $("flash").classList.remove("go"); void $("flash").offsetWidth; $("flash").classList.add("go");
   const out = await compose(src); shotData = out.small; shotBlob = out.full;
+  keepCamShot(src);
   camSteps("camResult");
   const inst = $("instant"); inst.classList.remove("dev"); inst.style.animation = "none"; void inst.offsetWidth; inst.style.animation = "";
   $("shot").src = URL.createObjectURL(shotBlob);
@@ -1427,6 +1441,57 @@ document.addEventListener("pointerdown", e => {
   addEventListener("pointerup", up); addEventListener("pointercancel", up);
 }, {passive:true});
 
+/* ================= ФОТО С ФОТОАППАРАТА В АЛЬБОМЕ =================
+   Каждое фото, снятое на сайте, встаёт в свою рамку в начале альбома (хранится на её телефоне).
+   Последняя рамка всегда пустая: нажать — открыть фотоаппарат и сразу вернуться в альбом. */
+const CAM_KEY = "bubu-album-shots", CAM_MAX = 12;
+let camShots = [], camSlot = -1;                                  // camSlot: какую рамку занимает снимок этого захода (переснять = заменить)
+try { camShots = JSON.parse(localStorage.getItem(CAM_KEY) || "[]").filter(x => x && typeof x.img === "string" && x.img.startsWith("data:image/")); } catch {}
+const ddmmyyyy = t => { const d = new Date(t); return [d.getDate(), d.getMonth()+1].map(v => String(v).padStart(2,"0")).join(".") + "." + d.getFullYear(); };
+function keepCamShot(src){
+  try {
+    const sw = src.naturalWidth || src.width, sh = src.naturalHeight || src.height, side = Math.min(sw, sh), S = Math.min(720, side);
+    const cv = document.createElement("canvas"); cv.width = cv.height = S;
+    const g = cv.getContext("2d"); g.imageSmoothingQuality = "high";
+    g.drawImage(src, (sw-side)/2, (sh-side)/2, side, side, 0, 0, S, S);
+    const shot = {img: cv.toDataURL("image/jpeg", .82), at: Date.now()};
+    if (camSlot >= 0 && camShots[camSlot]) camShots[camSlot] = shot; else { camShots.push(shot); camSlot = camShots.length - 1; }
+    while (camShots.length > CAM_MAX){ camShots.shift(); camSlot--; }
+    saveCamShots();
+    renderCamFrames(true);
+  } catch {}
+}
+function saveCamShots(){
+  for (let n = camShots.length; n >= 0; n--){                         // если места мало — храним сколько влезет, начиная с новых
+    try { localStorage.setItem(CAM_KEY, JSON.stringify(camShots.slice(camShots.length - n))); return; } catch {}
+  }
+}
+const CAM_SVG = `<svg viewBox="0 0 48 40" aria-hidden="true"><rect x="3" y="9" width="42" height="28" rx="7" fill="#f6c3d0" stroke="#5a3a2d" stroke-width="2.4"/><rect x="9" y="4" width="11" height="7" rx="2.5" fill="#fdf6ee" stroke="#5a3a2d" stroke-width="2.2"/><circle cx="24" cy="23" r="9" fill="#fdf6ee" stroke="#5a3a2d" stroke-width="2.4"/><circle cx="24" cy="23" r="5" fill="#3b2a35"/><circle cx="22" cy="21" r="1.6" fill="#fff"/></svg>`;
+function renderCamFrames(fresh){
+  const al = $("album"); if (!al) return;
+  al.querySelectorAll(".apol.cam, .apol.empty").forEach(el => el.remove());
+  const frag = document.createDocumentFragment();
+  const tilt = () => `--rot:${((Math.random()-.5)*7).toFixed(1)}deg;--jx:${Math.round((Math.random()-.5)*8)}px;--jy:${Math.round((Math.random()-.5)*8)}px`;
+  camShots.slice().reverse().forEach((sh, k) => {                     // новые сверху
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "apol cam" + (fresh && k === 0 ? " new" : "");
+    b.style.cssText = `${tilt()};--ar:1;--d:${fresh && k === 0 ? 0 : k * 120}ms`;
+    b.setAttribute("aria-label", "Наше фото с фотоаппарата, " + ddmmyyyy(sh.at));
+    b.innerHTML = `<span class="im"><img src="${sh.img}" alt="" decoding="async"></span><span class="cap">${ddmmyyyy(sh.at)}</span>`;
+    b.onclick = () => openLB({type:"photo", src: sh.img, caption: ddmmyyyy(sh.at)}, "cam" + sh.at);
+    frag.appendChild(b);
+  });
+  const e = document.createElement("button");
+  e.type = "button"; e.className = "apol empty";
+  e.style.cssText = `${tilt()};--ar:1;--d:${camShots.length * 120 + 80}ms`;
+  e.setAttribute("aria-label", "Пустая рамка: сфотографироваться на фотоаппарат сайта");
+  e.innerHTML = `<span class="im"><span class="slot">${CAM_SVG}<b>${camShots.length ? "место для ещё одного фото" : "место для нашего фото"}</b><small>нажми, сфоткаемся</small></span></span><span class="cap"></span>`;
+  e.onclick = () => { camReturn = "s-album"; tgNote("📷 Нажала на пустую рамку в альбоме, открывает фотоаппарат", true); show("s-cam"); };
+  frag.appendChild(e);
+  al.prepend(frag);
+}
+onShow["s-cam"] = () => { camSlot = -1; camSteps("camAsk"); $("camFallback").hidden = true; };
+
 /* ================= ПОДАРОК: лилии и альбом ================= */
 function lilyShower(onCovered, onFalling, onDone){
   const sh = $("shower"); sh.textContent = "";
@@ -1478,7 +1543,7 @@ function buildAlbum(){
   ALBUM.forEach((it, i) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "apol";
-    b.style.cssText = `--rot:${((Math.random()-.5)*8).toFixed(1)}deg;--jx:${Math.round((Math.random()-.5)*8)}px;--jy:${Math.round((Math.random()-.5)*10)}px;--d:${order[i]*170}ms` + (it.ar ? `;--ar:${it.ar}` : "");
+    b.style.cssText = `--rot:${((Math.random()-.5)*8).toFixed(1)}deg;--jx:${Math.round((Math.random()-.5)*8)}px;--jy:${Math.round((Math.random()-.5)*10)}px;--d:${(order[i] + 2)*170}ms` + (it.ar ? `;--ar:${it.ar}` : "");
     b.setAttribute("aria-label", it.caption ? "Фото: " + it.caption : "Фото " + (i + 1) + ", открыть крупно");
     const src = it.type === "video" ? it.poster : (it.thumb || it.src);
     b.innerHTML = `<span class="im"><img src="${src}" alt="" decoding="async">${it.type === "video" ? `<span class="mbadge">${PLAY_SVG}</span>` : ""}</span><span class="cap"></span>`;
@@ -1486,9 +1551,15 @@ function buildAlbum(){
     b.onclick = () => openLB(it, i);
     $("album").appendChild(b);
   });
+  renderCamFrames(false);
 }
+let albumDone;
 function playAlbum(){
+  clearTimeout(albumDone); $("album").classList.remove("done");
+  $("album").querySelectorAll(".new").forEach(el => el.classList.remove("new"));
   [$("album"), document.querySelector(".album-head")].forEach(el => { el.classList.remove("play"); void el.offsetWidth; el.classList.add("play"); });
+  const last = Math.max(0, ...[...$("album").children].map(el => parseFloat(el.style.getPropertyValue("--d")) || 0));
+  albumDone = setTimeout(() => $("album").classList.add("done"), last + 3000);   // дальше анимируется только новое фото
 }
 let giftBusy = false;
 onShow["s-gift"] = () => { $("giftBtn").classList.remove("open"); giftBusy = false; buildAlbum(); };

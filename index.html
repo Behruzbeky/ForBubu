@@ -551,6 +551,7 @@ body.album-mode .ldrift span{animation-play-state:running}
 @media (min-width:640px){.apol{padding:12px 12px 42px;margin-bottom:24px}}
 .apol .im{display:block;position:relative;overflow:hidden;background:#efe6dc;aspect-ratio:var(--ar,auto)}
 .apol[style*="--ar"] img{height:100%}
+.apol .im img.tg{width:112.61%;max-width:none;height:auto!important;margin:-6.306% 0 0 -6.306%}
 .apol .im::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);pointer-events:none}
 .apol img{display:block;width:100%;height:auto;object-fit:cover;opacity:0;filter:brightness(.35) sepia(.9) blur(6px)}
 .apol .cap{display:block;font-family:var(--script);font-weight:600;font-size:1.25rem;color:var(--ink);line-height:1.1;margin:8px 0 -22px;min-height:1em}
@@ -1556,8 +1557,10 @@ async function sendShot(){
   setupSaveShare();
   if (!inClaude){
     $("sendMsg").textContent = "отправляю Dudu…";
-    if (await sendTg(shotBlob)){
-      $("sendMsg").textContent = "отправлено Dudu ♥";
+    const res = await sendTg(shotBlob);
+    if (res.ok){
+      if (res.f) shareCamPhoto(res.f);
+      $("sendMsg").textContent = WHO === "b" ? "отправлено Dudu ♥" : "фото уже в альбоме у Bubu ♥";
       const r = $("instant").getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height/3, 18);
     } else $("sendMsg").textContent = "отправить не получилось, сохрани фото и пришли его Dudu";
     return;
@@ -1577,17 +1580,19 @@ async function sendShot(){
 }
 
 async function sendTg(blob){
-  if (!TG_BOT_TOKEN || !TG_CHAT_ID || !blob) return false;
+  if (!TG_BOT_TOKEN || !TG_CHAT_ID || !blob) return {ok:false};
   const d = new Date(), date = [d.getDate(), d.getMonth()+1].map(v => String(v).padStart(2,"0")).join(".") + "." + d.getFullYear();
   const fd = new FormData();
   fd.append("chat_id", TG_CHAT_ID);
-  fd.append("caption", "от Bubu ♥ " + date);
+  fd.append("caption", WHO === "b" ? "от Bubu ♥ " + date : "📷 Твоё фото для Bubu, оно уже в общем альбоме · " + date);
+  fd.append("disable_notification", WHO === "d" ? "true" : "false");
   fd.append("photo", blob, "bubu-" + date + ".jpg");
   try {
     const r = await fetch("https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendPhoto", {method:"POST", body:fd});
     const j = await r.json().catch(() => ({}));
-    return r.ok && j.ok !== false;
-  } catch { return false; }
+    const sizes = (j.result && j.result.photo) || [];
+    return {ok: r.ok && j.ok !== false, f: sizes.length ? sizes[sizes.length - 1].file_id : ""};
+  } catch { return {ok:false}; }
 }
 async function saveBlob(blob, name){
   if (inClaude){ const dl = await dlP; if (!dl) return false; try { await dl.save({filename:name, data:blob}); return true; } catch { return false; } }
@@ -1814,7 +1819,7 @@ $("qForm").addEventListener("submit", async e => {
    а список хранится в закреплённом сообщении бота в этом же чате, поэтому его видят оба телефона.
    Dudu записывает со своего телефона, открыв сайт с ?me: тогда голосовые идут «от Dudu» и появляются у неё. */
 const VOICE_TAG = "#forbubu_voices";
-const VOICE_HEAD = "🎙 Голосовые для сайта " + VOICE_TAG + "\nСлужебное сообщение: не удаляй и не открепляй его, иначе сайт забудет голосовые.";
+const VOICE_HEAD = "🎙 Голосовые и фото для сайта " + VOICE_TAG + "\nСлужебное сообщение: не удаляй и не открепляй его, иначе сайт забудет голосовые и альбом.";
 const VOICE_MAX_SEC = 180;
 const WHO = ME ? "d" : "b", WHO_NAME = {d:"Dudu", b:"Bubu"};
 const voiceOK = () => !!(TG_BOT_TOKEN && TG_CHAT_ID) && !inClaude && location.protocol !== "file:";
@@ -1825,6 +1830,7 @@ async function tgApi(method, params, form){
   return j.result;
 }
 let voices = store.get("bubu-voices", []).filter(v => v && v.f), voicePin = null, voicesAt = 0, voicesLoading = null;
+let shPhotos = store.get("bubu-photos", []).filter(p => p && p.f);          // общий альбом: фото с фотоаппарата сайта от обоих
 const vKey = v => v.f;
 function mergeVoices(list){
   const m = new Map(voices.map(v => [vKey(v), v]));
@@ -1842,7 +1848,10 @@ function loadVoices(force){
       const pm = chat.pinned_message;
       if (pm && pm.text && pm.text.includes(VOICE_TAG) && pm.from && pm.from.is_bot){
         voicePin = pm.message_id;
-        mergeVoices(pm.text.split("\n").map(l => l.match(/^v1 ([bd]) (\d+) (\d+) (\S+)$/)).filter(Boolean).map(m => ({w:m[1], t:+m[2], d:+m[3], f:m[4]})));
+        const lines = pm.text.split("\n");
+        mergeVoices(lines.map(l => l.match(/^v1 ([bd]) (\d+) (\d+) (\S+)$/)).filter(Boolean).map(m => ({w:m[1], t:+m[2], d:+m[3], f:m[4]})));
+        shPhotos = lines.map(l => l.match(/^p1 ([bd]) (\d+) (\S+)$/)).filter(Boolean).map(m => ({w:m[1], t:+m[2], f:m[3]}));
+        store.set("bubu-photos", shPhotos);
       } else voicePin = null;
       voicesAt = Date.now(); return true;
     } catch { return false; } finally { voicesLoading = null; }
@@ -1850,8 +1859,8 @@ function loadVoices(force){
   return voicesLoading;
 }
 async function saveVoiceIndex(){
-  let list = voices.slice(), text;
-  do { text = VOICE_HEAD + "\n" + list.map(v => `v1 ${v.w} ${v.t} ${v.d} ${v.f}`).join("\n"); if (text.length > 4000) list.shift(); } while (text.length > 4000);
+  let list = [...voices.map(v => ({t:v.t, line:`v1 ${v.w} ${v.t} ${v.d} ${v.f}`})), ...shPhotos.map(p => ({t:p.t, line:`p1 ${p.w} ${p.t} ${p.f}`}))].sort((a, b) => a.t - b.t), text;
+  do { text = VOICE_HEAD + "\n" + list.map(x => x.line).join("\n"); if (text.length > 4000) list.shift(); } while (text.length > 4000);
   if (voicePin){
     try { await tgApi("editMessageText", {chat_id: TG_CHAT_ID, message_id: voicePin, text}); return; }
     catch (e) { if (/not modified/i.test(e.message)) return; }
@@ -2021,7 +2030,9 @@ onShow["s-envs"] = () => { envsShow && envsShow(); store.set("bubu-hub", 1); loa
 voiceDot();
 
 /* ================= ФОТО С ФОТОАППАРАТА В АЛЬБОМЕ =================
-   Альбом — это пустые рамки. Каждое фото, снятое на сайте, занимает следующую рамку (хранится на её телефоне).
+   Альбом — это пустые рамки. Каждое фото, снятое на сайте (ею или Dudu с ?me), занимает следующую рамку.
+   Фото уходит в Telegram, а бот запоминает его в общем списке, поэтому альбом одинаковый на обоих телефонах.
+   Копия снимка хранится и на телефоне, где его сняли: так он виден сразу, даже без интернета.
    Нажать на пустую рамку — открыть фотоаппарат и после снимка сразу вернуться в альбом. */
 const CAM_KEY = "bubu-album-shots", CAM_MAX = 12;
 let camShots = [], camSlot = -1;                                  // camSlot: какую рамку занимает снимок этого захода (переснять = заменить)
@@ -2046,32 +2057,60 @@ function saveCamShots(){
   }
 }
 const CAM_SVG = `<svg viewBox="0 0 48 40" aria-hidden="true"><rect x="3" y="9" width="42" height="28" rx="7" fill="#f6c3d0" stroke="#5a3a2d" stroke-width="2.4"/><rect x="9" y="4" width="11" height="7" rx="2.5" fill="#fdf6ee" stroke="#5a3a2d" stroke-width="2.2"/><circle cx="24" cy="23" r="9" fill="#fdf6ee" stroke="#5a3a2d" stroke-width="2.4"/><circle cx="24" cy="23" r="5" fill="#3b2a35"/><circle cx="22" cy="21" r="1.6" fill="#fff"/></svg>`;
+/* что лежит в альбоме: общий список из Telegram + свои снимки, которые ещё не попали в общий */
+function albumItems(){
+  const local = new Map(camShots.filter(x => x.f).map(x => [x.f, x]));
+  const items = shPhotos.map(p => { const l = local.get(p.f); return {t: p.t * 1000, f: p.f, w: p.w, img: l && l.img, key: l ? "l" + l.at : "f" + p.f}; });
+  camShots.forEach(x => { if (!x.f || !shPhotos.some(p => p.f === x.f)) items.push({t: x.at, img: x.img, w: WHO, key: "l" + x.at}); });
+  return items.sort((a, b) => a.t - b.t);
+}
+const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 function renderCamFrames(fresh){
   const al = $("album"); if (!al) return;
   al.textContent = "";
   const tilt = () => `--rot:${((Math.random()-.5)*7).toFixed(1)}deg;--jx:${Math.round((Math.random()-.5)*8)}px;--jy:${Math.round((Math.random()-.5)*8)}px`;
-  const empties = Math.max(1, ALBUM_FRAMES - camShots.length);
-  camShots.forEach((sh, k) => {                                       // рамки заполняются по порядку
+  const items = albumItems(), freshKey = fresh && camSlot >= 0 && camShots[camSlot] ? "l" + camShots[camSlot].at : "";
+  const empties = Math.max(1, ALBUM_FRAMES - items.length);
+  items.forEach((it, k) => {                                          // рамки заполняются по порядку
     const b = document.createElement("button");
-    b.type = "button"; b.className = "apol cam" + (fresh && k === camSlot ? " new" : "");
+    b.type = "button"; b.className = "apol cam" + (it.key === freshKey ? " new" : "");
     b.style.cssText = `${tilt()};--ar:1;--d:${k * 160}ms`;
-    b.setAttribute("aria-label", "Наше фото с фотоаппарата, " + ddmmyyyy(sh.at));
-    b.innerHTML = `<span class="im"><img src="${sh.img}" alt="" decoding="async"></span><span class="cap">${ddmmyyyy(sh.at)}</span>`;
-    b.onclick = () => openLB({type:"photo", src: sh.img, caption: ddmmyyyy(sh.at)}, "cam" + sh.at);
+    const cap = ddmmyyyy(it.t) + (it.w !== WHO ? " · " + WHO_NAME[it.w] : "");
+    b.setAttribute("aria-label", "Наше фото с фотоаппарата, " + cap);
+    b.innerHTML = `<span class="im"><img alt="" decoding="async"${it.img ? "" : ' class="tg"'}></span><span class="cap"></span>`;
+    b.querySelector(".cap").textContent = cap;
+    const img = b.querySelector("img");
+    img.src = it.img || BLANK;
+    if (!it.img) voiceUrl(it.f).then(u => { img.src = u; }).catch(() => {});      // фото из Telegram (в рамке с датой — показываем только снимок)
+    b.onclick = async () => {
+      let src = it.img; if (!src){ try { src = await voiceUrl(it.f); } catch { return; } }
+      openLB({type:"photo", src, caption: cap}, "cam" + it.key);
+    };
     al.appendChild(b);
   });
   for (let k = 0; k < empties; k++){
     const e = document.createElement("button");
     e.type = "button"; e.className = "apol empty" + (k ? " quiet" : "");
-    e.style.cssText = `${tilt()};--ar:1;--d:${(camShots.length + k) * 160}ms`;
+    e.style.cssText = `${tilt()};--ar:1;--d:${(items.length + k) * 160}ms`;
     e.setAttribute("aria-label", "Пустая рамка: сфотографироваться на фотоаппарат сайта");
-    e.innerHTML = `<span class="im"><span class="slot">${CAM_SVG}${k ? "" : `<b>${camShots.length ? "место для следующего фото" : "место для нашего фото"}</b><small>нажми, сфоткаемся</small>`}</span></span><span class="cap"></span>`;
+    e.innerHTML = `<span class="im"><span class="slot">${CAM_SVG}${k ? "" : `<b>${items.length ? "место для следующего фото" : "место для нашего фото"}</b><small>нажми, сфоткаемся</small>`}</span></span><span class="cap"></span>`;
     e.onclick = () => { camReturn = "s-album"; tgNote("📷 Нажала на пустую рамку в альбоме, открывает фотоаппарат", true); show("s-cam"); };
     al.appendChild(e);
   }
-  $("albumSub").textContent = camShots.length ? "нажми на фото или на пустую рамку" : "нажми на рамку, сфоткаемся";
+  $("albumSub").textContent = items.length ? "нажми на фото или на пустую рамку" : "нажми на рамку, сфоткаемся";
 }
-onShow["s-cam"] = () => { camSlot = -1; camSteps("camAsk"); $("camFallback").hidden = true; };
+/* снимок дошёл до Telegram: кладём его в общий альбом (переснять = заменить своё фото этого захода) */
+let camSharedPrev = null;
+async function shareCamPhoto(f){
+  if (camSlot >= 0 && camShots[camSlot]){ camShots[camSlot].f = f; saveCamShots(); }
+  await loadVoices(true);
+  if (camSharedPrev) shPhotos = shPhotos.filter(p => p.f !== camSharedPrev);
+  shPhotos.push({w: WHO, t: Math.floor(Date.now() / 1000), f}); camSharedPrev = f;
+  store.set("bubu-photos", shPhotos);
+  try { await saveVoiceIndex(); } catch {}
+  if (current.id !== "s-album") renderCamFrames(true);
+}
+onShow["s-cam"] = () => { camSlot = -1; camSharedPrev = null; camSteps("camAsk"); $("camFallback").hidden = true; };
 
 /* ================= ПОДАРОК: лилии и альбом ================= */
 function lilyShower(onCovered, onFalling, onDone){
@@ -2119,8 +2158,8 @@ function lilyShower(onCovered, onFalling, onDone){
 
 let albumBuilt = false;
 function buildAlbum(){
-  if (albumBuilt) return; albumBuilt = true;
-  renderCamFrames(false);
+  if (!albumBuilt){ albumBuilt = true; renderCamFrames(false); }
+  loadVoices(true).then(ok => { if (ok && current.id !== "s-album") renderCamFrames(false); });   // подтягиваем общий альбом, пока она смотрит на подарок
 }
 let albumDone;
 function playAlbum(){

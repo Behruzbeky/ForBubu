@@ -396,14 +396,26 @@ body.end-mode .rain{opacity:1}
   opacity:0;transform:translate(-50%,6px) scale(.92);transform-origin:50% 100%;pointer-events:none;transition:opacity .25s,transform .35s var(--ease-spring)}
 .miss-msg::after{content:"";position:absolute;left:50%;top:100%;margin-left:-7px;border:7px solid transparent;border-top-color:#fffdf9}
 .miss-msg.on{opacity:1;transform:translate(-50%,0) scale(1)}
-.extras{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
-.extras .pill{min-width:0;min-height:46px;padding:8px 20px;font-size:1.05rem;display:inline-flex;align-items:center;gap:8px}
-.miss-btn svg{width:18px;height:18px;color:#e0536f;flex:none}
-.miss-btn.beat svg{animation:beat .9s var(--ease-out)}
-@keyframes beat{15%{transform:scale(1.35)}30%{transform:scale(.9)}45%{transform:scale(1.2)}70%{transform:none}}
-.qmark{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--wine-3);color:#fff;font:700 .85rem/1 var(--serif);flex:none}
-.qdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0536f;box-shadow:0 0 0 2px rgba(255,255,255,.8);margin-left:-2px;animation:pulse 2.2s var(--ease-out) infinite}
-@media (max-width:560px){.extras{margin-right:56px}.extras .pill{padding:8px 16px}}
+.sec-label{display:flex;align-items:center;gap:12px;width:min(520px,100%);margin:0;font:600 .72rem/1 var(--serif);letter-spacing:.24em;text-transform:uppercase;color:#9c7f79}
+.sec-label::before,.sec-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(142,42,64,.28),transparent)}
+.daily{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;margin-top:4px}
+.tiles{display:flex;justify-content:center;gap:clamp(10px,3vw,22px);flex-wrap:wrap}
+.tile{position:relative;width:clamp(88px,24vw,112px);aspect-ratio:1/1.02;border:0;cursor:pointer;padding:12px 6px 10px;border-radius:14px;background:#fffdf9;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transform:rotate(var(--r,0deg));
+  box-shadow:0 8px 16px rgba(110,30,50,.14),0 1px 2px rgba(110,30,50,.12),inset 0 0 0 1px rgba(142,42,64,.06);transition:transform .3s var(--ease-spring),box-shadow .3s}
+.tile:hover{transform:rotate(0deg) translateY(-5px);box-shadow:0 14px 24px rgba(110,30,50,.18),0 1px 2px rgba(110,30,50,.12)}
+.tile:active{transform:rotate(0deg) scale(.95)}
+.tile:focus-visible{outline:2px solid var(--wine-3);outline-offset:4px}
+.tile b{font-family:var(--script);font-weight:700;font-size:clamp(1.12rem,3.8vw,1.3rem);line-height:1;color:var(--ink)}
+.tico{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 1.35rem/1 var(--serif);
+  background:radial-gradient(circle at 35% 30%,var(--wine-3),var(--wine-2) 60%,var(--wine));box-shadow:0 4px 8px rgba(106,26,58,.3),inset 0 1px 2px rgba(255,255,255,.35)}
+.tico svg{width:21px;height:21px}
+.miss-ico{background:radial-gradient(circle at 35% 30%,#ef8aa1,#e0536f 55%,#b8355a)}
+.miss-ico svg{width:20px;height:20px}
+#missBtn.beat .tico{animation:beat .9s var(--ease-out)}
+@keyframes beat{15%{transform:scale(1.25)}30%{transform:scale(.92)}45%{transform:scale(1.14)}70%{transform:none}}
+.tdot{position:absolute;top:8px;right:8px;width:11px;height:11px;border-radius:50%;background:#e0364f;box-shadow:0 0 0 2.5px #fffdf9;animation:pulse 2.2s var(--ease-out) infinite}
+@media (max-width:560px){#s-envs .card-in{padding-bottom:150px}}
 
 .q-kicker{font-size:1.45rem;letter-spacing:.02em;margin:0}
 .q-text{font-family:var(--script);font-weight:700;color:var(--rose);font-size:clamp(2rem,7vw,2.9rem);line-height:1.05;margin:0;max-width:18ch;text-wrap:balance}
@@ -418,7 +430,6 @@ body.end-mode .rain{opacity:1}
   width:min(420px,100%);padding:18px 20px;background:#fff6c9;box-shadow:0 8px 16px rgba(90,60,20,.16);transform:rotate(-1.5deg);animation:rise .5s var(--ease-out) both}
 
 /* голосовые: она ↔ Dudu */
-.voice-btn svg{width:18px;height:18px;color:var(--wine-3);flex:none}
 .voice-in{gap:16px}
 .vlist{width:min(460px,100%);display:flex;flex-direction:column;gap:12px;max-height:min(52dvh,460px);overflow-y:auto;overscroll-behavior:contain;padding:4px 4px 8px;scroll-behavior:smooth}
 .vempty{font-family:var(--script);font-weight:600;color:#9c6a64;font-size:1.35rem;margin:10px 0}
@@ -624,13 +635,17 @@ body.album-mode .ldrift span{animation-play-state:running}
   <section class="screen" id="s-envs" aria-label="Конверты «Открой, когда…»">
     <div class="card grain"><div class="card-in">
       <span class="flower" data-flower></span>
+      <p class="sec-label" data-a style="--i:0"><span>открой, когда…</span></p>
       <div class="envs" id="envs"></div>
       <p class="env-note" id="envNote" role="status" aria-live="polite"></p>
-      <div class="extras">
-        <span class="miss-wrap"><button class="pill miss-btn" type="button" id="missBtn"><svg viewBox="0 0 100 92" aria-hidden="true"><path d="M50 90C20 66 0 48 0 26C0 10 12 0 26 0C38 0 46 8 50 16C54 8 62 0 74 0C88 0 100 10 100 26C100 48 80 66 50 90Z" fill="currentColor"/></svg><span>я скучаю</span></button><span class="miss-msg" id="missMsg" role="status" aria-live="polite"></span></span>
-        <button class="pill qday-btn" type="button" data-go="s-question"><span class="qmark" aria-hidden="true">?</span><span>вопрос дня</span><i class="qdot" id="qDot" hidden></i></button>
-        <button class="pill voice-btn" type="button" data-go="s-voice"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>голосовые</span><i class="qdot" id="vDot" hidden></i></button>
-      </div>
+      <section class="daily" aria-labelledby="t-daily" data-a style="--i:3">
+        <p class="sec-label" id="t-daily"><span>каждый день</span></p>
+        <div class="tiles">
+          <span class="miss-wrap"><button class="tile" type="button" id="missBtn" style="--r:-2deg"><span class="tico miss-ico"><svg viewBox="0 0 100 92" aria-hidden="true"><path d="M50 90C20 66 0 48 0 26C0 10 12 0 26 0C38 0 46 8 50 16C54 8 62 0 74 0C88 0 100 10 100 26C100 48 80 66 50 90Z" fill="currentColor"/></svg></span><b>я скучаю</b></button><span class="miss-msg" id="missMsg" role="status" aria-live="polite"></span></span>
+          <button class="tile" type="button" data-go="s-question" style="--r:1.5deg"><span class="tico">?</span><b>вопрос дня</b><i class="tdot" id="qDot" hidden></i></button>
+          <button class="tile" type="button" data-go="s-voice" style="--r:-1deg"><span class="tico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><b>голосовые</b><i class="tdot" id="vDot" hidden></i></button>
+        </div>
+      </section>
       <button class="round next" type="button" data-go="s-final" aria-label="Дальше, к последнему письму">
         <svg viewBox="0 0 24 24"><path d="M7 4.5l12 7.5-12 7.5z" fill="#fff"/></svg>
       </button>
@@ -1025,7 +1040,7 @@ $("passForm").addEventListener("submit", e => {
     clearBlooms();
     tgLast = "вошла по паролю";
     tgNote(tries ? `🔓 Вошла! Пароль верный (до этого ошибок: ${tries})` : "🔓 Вошла с первой попытки", true, "unlock");
-    show("s-ask");
+    show(store.get("bubu-hub", 0) ? "s-envs" : "s-ask");          // кто уже был у конвертов, сразу попадает к ним
   } else {
     $("err").textContent = WRONG[tries++ % WRONG.length];
     tgNote(`🔒 Неверный пароль, попытка ${tries}: «${$("pass").value.trim().slice(0, 40)}»`);
@@ -1892,7 +1907,7 @@ onShow["s-voice"] = async () => {
 };
 recReset();
 const envsShow = onShow["s-envs"];
-onShow["s-envs"] = () => { envsShow && envsShow(); loadVoices().then(voiceDot); };
+onShow["s-envs"] = () => { envsShow && envsShow(); store.set("bubu-hub", 1); loadVoices().then(voiceDot); };
 voiceDot();
 
 /* ================= ФОТО С ФОТОАППАРАТА В АЛЬБОМЕ =================

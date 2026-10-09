@@ -418,9 +418,8 @@ body.album-mode .ldrift span{animation-play-state:running}
 @keyframes ldSway{from{transform:translateX(-14px) rotate(-8deg)}to{transform:translateX(14px) rotate(8deg)}}
 
 .album-head .gtitle{color:#8e1f3a}
-.album{width:min(1100px,100%);margin:6px auto 0;columns:2;column-gap:14px;padding:6px 4px 0}
-@media (min-width:640px){.album{columns:3;column-gap:22px}}
-@media (min-width:980px){.album{columns:4;column-gap:26px}}
+.album{width:min(760px,100%);margin:6px auto 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 14px;padding:6px 4px 0;align-items:start}
+@media (min-width:640px){.album{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 24px}}
 .apol{display:block;width:100%;break-inside:avoid;margin:0 0 16px;border:0;cursor:pointer;background:#fffdf9;padding:8px 8px 30px;box-shadow:0 10px 18px rgba(90,50,30,.18),0 1px 2px rgba(90,50,30,.14);transform:translate(var(--jx),var(--jy)) rotate(var(--rot));opacity:0;text-align:center}
 @media (min-width:640px){.apol{padding:12px 12px 42px;margin-bottom:24px}}
 .apol .im{display:block;position:relative;overflow:hidden;background:#efe6dc;aspect-ratio:var(--ar,auto)}
@@ -444,7 +443,8 @@ body.album-mode .ldrift span{animation-play-state:running}
 .apol.empty .slot svg{width:42%;max-width:64px;height:auto;margin-bottom:2px}
 .apol.empty .slot b{font-family:var(--script);font-weight:700;color:#8e2a40;font-size:clamp(1.05rem,4.2vw,1.35rem);line-height:1.05}
 .apol.empty .slot small{font-family:var(--script);font-weight:500;color:#9c6a64;font-size:clamp(.95rem,3.6vw,1.1rem);line-height:1.1}
-.album.play .apol.empty .slot svg{animation:camWiggle 2.6s ease-in-out 2s infinite}
+.apol.empty.quiet .slot svg{opacity:.4;width:34%}
+.album.play .apol.empty:not(.quiet) .slot svg{animation:camWiggle 2.6s ease-in-out 2s infinite}
 @keyframes camWiggle{0%,70%,100%{transform:none}78%{transform:rotate(-8deg)}86%{transform:rotate(6deg)}93%{transform:rotate(-3deg)}}
 .album-head,.album-nav{opacity:0}
 .album.play ~ .album-nav,.album-head.play{animation:rise .6s var(--ease-out) both}
@@ -701,7 +701,7 @@ body.album-mode .ldrift span{animation-play-state:running}
 
   <!-- 12. альбом: рамки, в каждой проявляется фото -->
   <section class="screen wide" id="s-album" aria-labelledby="t-album">
-    <div class="ghead album-head"><h2 class="gtitle" id="t-album">наш альбом</h2><p class="gsub">нажми на фото, чтобы рассмотреть</p></div>
+    <div class="ghead album-head"><h2 class="gtitle" id="t-album">наш альбом</h2><p class="gsub" id="albumSub">нажми на рамку, сфоткаемся</p></div>
     <div class="album" id="album"></div>
     <div class="gnav album-nav">
       <button class="pill" type="button" data-go="s-gift">открыть подарок ещё раз</button>
@@ -920,9 +920,8 @@ const V = n => ({ type:"video", src:`media/v${n}.mp4`, prev:`media/v${n}-prev.mp
 const FILM    = [V(1), P(1), V(2), V(10), P(2), V(3), V(9), P(10)];
 const GARLAND = [P(3), V(4), P(4), V(5), P(5), V(11), P(6), V(12)];
 const STACK   = [P(7), V(6), P(8), P(9), V(7), P(11), V(8)];
-/* альбом в самом конце (после подарка): каждая карточка — полароид, фото в нём проявляется.
-   Добавить фото: положить файл в media/ и дописать сюда { type:"photo", src:"media/мы.jpg", caption:"подпись" } */
-const ALBUM   = [P(1), P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9), P(10), P(11)];
+/* альбом в самом конце (после подарка): пустые рамки, которые заполняются только фото с фотоаппарата сайта */
+const ALBUM_FRAMES = 6;                         // сколько рамок видно сразу (когда все заполнятся, всегда остаётся ещё одна пустая)
 /* лилии из подарка: сколько секунд засыпают экран и сколько падают вниз (больше — медленнее) */
 const SHOWER  = { pour: 1.1, fall: 2.1 };
 const CAM_CAPTION = "моя Bubu";
@@ -1442,8 +1441,8 @@ document.addEventListener("pointerdown", e => {
 }, {passive:true});
 
 /* ================= ФОТО С ФОТОАППАРАТА В АЛЬБОМЕ =================
-   Каждое фото, снятое на сайте, встаёт в свою рамку в начале альбома (хранится на её телефоне).
-   Последняя рамка всегда пустая: нажать — открыть фотоаппарат и сразу вернуться в альбом. */
+   Альбом — это пустые рамки. Каждое фото, снятое на сайте, занимает следующую рамку (хранится на её телефоне).
+   Нажать на пустую рамку — открыть фотоаппарат и после снимка сразу вернуться в альбом. */
 const CAM_KEY = "bubu-album-shots", CAM_MAX = 12;
 let camShots = [], camSlot = -1;                                  // camSlot: какую рамку занимает снимок этого захода (переснять = заменить)
 try { camShots = JSON.parse(localStorage.getItem(CAM_KEY) || "[]").filter(x => x && typeof x.img === "string" && x.img.startsWith("data:image/")); } catch {}
@@ -1469,26 +1468,28 @@ function saveCamShots(){
 const CAM_SVG = `<svg viewBox="0 0 48 40" aria-hidden="true"><rect x="3" y="9" width="42" height="28" rx="7" fill="#f6c3d0" stroke="#5a3a2d" stroke-width="2.4"/><rect x="9" y="4" width="11" height="7" rx="2.5" fill="#fdf6ee" stroke="#5a3a2d" stroke-width="2.2"/><circle cx="24" cy="23" r="9" fill="#fdf6ee" stroke="#5a3a2d" stroke-width="2.4"/><circle cx="24" cy="23" r="5" fill="#3b2a35"/><circle cx="22" cy="21" r="1.6" fill="#fff"/></svg>`;
 function renderCamFrames(fresh){
   const al = $("album"); if (!al) return;
-  al.querySelectorAll(".apol.cam, .apol.empty").forEach(el => el.remove());
-  const frag = document.createDocumentFragment();
+  al.textContent = "";
   const tilt = () => `--rot:${((Math.random()-.5)*7).toFixed(1)}deg;--jx:${Math.round((Math.random()-.5)*8)}px;--jy:${Math.round((Math.random()-.5)*8)}px`;
-  camShots.slice().reverse().forEach((sh, k) => {                     // новые сверху
+  const empties = Math.max(1, ALBUM_FRAMES - camShots.length);
+  camShots.forEach((sh, k) => {                                       // рамки заполняются по порядку
     const b = document.createElement("button");
-    b.type = "button"; b.className = "apol cam" + (fresh && k === 0 ? " new" : "");
-    b.style.cssText = `${tilt()};--ar:1;--d:${fresh && k === 0 ? 0 : k * 120}ms`;
+    b.type = "button"; b.className = "apol cam" + (fresh && k === camSlot ? " new" : "");
+    b.style.cssText = `${tilt()};--ar:1;--d:${k * 160}ms`;
     b.setAttribute("aria-label", "Наше фото с фотоаппарата, " + ddmmyyyy(sh.at));
     b.innerHTML = `<span class="im"><img src="${sh.img}" alt="" decoding="async"></span><span class="cap">${ddmmyyyy(sh.at)}</span>`;
     b.onclick = () => openLB({type:"photo", src: sh.img, caption: ddmmyyyy(sh.at)}, "cam" + sh.at);
-    frag.appendChild(b);
+    al.appendChild(b);
   });
-  const e = document.createElement("button");
-  e.type = "button"; e.className = "apol empty";
-  e.style.cssText = `${tilt()};--ar:1;--d:${camShots.length * 120 + 80}ms`;
-  e.setAttribute("aria-label", "Пустая рамка: сфотографироваться на фотоаппарат сайта");
-  e.innerHTML = `<span class="im"><span class="slot">${CAM_SVG}<b>${camShots.length ? "место для ещё одного фото" : "место для нашего фото"}</b><small>нажми, сфоткаемся</small></span></span><span class="cap"></span>`;
-  e.onclick = () => { camReturn = "s-album"; tgNote("📷 Нажала на пустую рамку в альбоме, открывает фотоаппарат", true); show("s-cam"); };
-  frag.appendChild(e);
-  al.prepend(frag);
+  for (let k = 0; k < empties; k++){
+    const e = document.createElement("button");
+    e.type = "button"; e.className = "apol empty" + (k ? " quiet" : "");
+    e.style.cssText = `${tilt()};--ar:1;--d:${(camShots.length + k) * 160}ms`;
+    e.setAttribute("aria-label", "Пустая рамка: сфотографироваться на фотоаппарат сайта");
+    e.innerHTML = `<span class="im"><span class="slot">${CAM_SVG}${k ? "" : `<b>${camShots.length ? "место для следующего фото" : "место для нашего фото"}</b><small>нажми, сфоткаемся</small>`}</span></span><span class="cap"></span>`;
+    e.onclick = () => { camReturn = "s-album"; tgNote("📷 Нажала на пустую рамку в альбоме, открывает фотоаппарат", true); show("s-cam"); };
+    al.appendChild(e);
+  }
+  $("albumSub").textContent = camShots.length ? "нажми на фото или на пустую рамку" : "нажми на рамку, сфоткаемся";
 }
 onShow["s-cam"] = () => { camSlot = -1; camSteps("camAsk"); $("camFallback").hidden = true; };
 
@@ -1539,18 +1540,6 @@ function lilyShower(onCovered, onFalling, onDone){
 let albumBuilt = false;
 function buildAlbum(){
   if (albumBuilt) return; albumBuilt = true;
-  const order = ALBUM.map((_, i) => i).sort(() => Math.random() - .5); // рамки заполняются вразброс
-  ALBUM.forEach((it, i) => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "apol";
-    b.style.cssText = `--rot:${((Math.random()-.5)*8).toFixed(1)}deg;--jx:${Math.round((Math.random()-.5)*8)}px;--jy:${Math.round((Math.random()-.5)*10)}px;--d:${(order[i] + 2)*170}ms` + (it.ar ? `;--ar:${it.ar}` : "");
-    b.setAttribute("aria-label", it.caption ? "Фото: " + it.caption : "Фото " + (i + 1) + ", открыть крупно");
-    const src = it.type === "video" ? it.poster : (it.thumb || it.src);
-    b.innerHTML = `<span class="im"><img src="${src}" alt="" decoding="async">${it.type === "video" ? `<span class="mbadge">${PLAY_SVG}</span>` : ""}</span><span class="cap"></span>`;
-    b.querySelector(".cap").textContent = it.caption || "";
-    b.onclick = () => openLB(it, i);
-    $("album").appendChild(b);
-  });
   renderCamFrames(false);
 }
 let albumDone;

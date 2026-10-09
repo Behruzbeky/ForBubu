@@ -399,7 +399,8 @@ body.end-mode .rain{opacity:1}
 .sec-label{display:flex;align-items:center;gap:12px;width:min(520px,100%);margin:0;font:600 .72rem/1 var(--serif);letter-spacing:.24em;text-transform:uppercase;color:#9c7f79}
 .sec-label::before,.sec-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(142,42,64,.28),transparent)}
 .daily{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;margin-top:4px}
-.tiles{display:flex;justify-content:center;gap:clamp(10px,3vw,22px);flex-wrap:wrap}
+.tiles{display:grid;grid-template-columns:repeat(4,auto);justify-content:center;gap:clamp(10px,3vw,22px)}
+@media (max-width:560px){.tiles{grid-template-columns:repeat(2,auto);gap:14px 18px}.tile{width:min(124px,34vw)}}
 .tile{position:relative;width:clamp(88px,24vw,112px);aspect-ratio:1/1.02;border:0;cursor:pointer;padding:12px 6px 10px;border-radius:14px;background:#fffdf9;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transform:rotate(var(--r,0deg));
   box-shadow:0 8px 16px rgba(110,30,50,.14),0 1px 2px rgba(110,30,50,.12),inset 0 0 0 1px rgba(142,42,64,.06);transition:transform .3s var(--ease-spring),box-shadow .3s}
@@ -412,6 +413,7 @@ body.end-mode .rain{opacity:1}
 .tico svg{width:21px;height:21px}
 .miss-ico{background:radial-gradient(circle at 35% 30%,#ef8aa1,#e0536f 55%,#b8355a)}
 .miss-ico svg{width:20px;height:20px}
+.gift-ico{background:radial-gradient(circle at 35% 30%,#f2a2b6,#e46f8d 55%,#c04a6c)}
 #missBtn.beat .tico{animation:beat .9s var(--ease-out)}
 @keyframes beat{15%{transform:scale(1.25)}30%{transform:scale(.92)}45%{transform:scale(1.14)}70%{transform:none}}
 .tdot{position:absolute;top:8px;right:8px;width:11px;height:11px;border-radius:50%;background:#e0364f;box-shadow:0 0 0 2.5px #fffdf9;animation:pulse 2.2s var(--ease-out) infinite}
@@ -644,6 +646,7 @@ body.album-mode .ldrift span{animation-play-state:running}
           <span class="miss-wrap"><button class="tile" type="button" id="missBtn" style="--r:-2deg"><span class="tico miss-ico"><svg viewBox="0 0 100 92" aria-hidden="true"><path d="M50 90C20 66 0 48 0 26C0 10 12 0 26 0C38 0 46 8 50 16C54 8 62 0 74 0C88 0 100 10 100 26C100 48 80 66 50 90Z" fill="currentColor"/></svg></span><b>я скучаю</b></button><span class="miss-msg" id="missMsg" role="status" aria-live="polite"></span></span>
           <button class="tile" type="button" data-go="s-question" style="--r:1.5deg"><span class="tico">?</span><b>вопрос дня</b><i class="tdot" id="qDot" hidden></i></button>
           <button class="tile" type="button" data-go="s-voice" style="--r:-1deg"><span class="tico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><b>голосовые</b><i class="tdot" id="vDot" hidden></i></button>
+          <button class="tile" type="button" data-go="s-gift" style="--r:2deg"><span class="tico gift-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="10" width="17" height="10.5" rx="1.5" fill="currentColor"/><rect x="2.5" y="7" width="19" height="4" rx="1.2" fill="currentColor" opacity=".85"/><path d="M12 7v13.5" stroke="#b8355a" stroke-width="2.2"/><path d="M12 7c-1.5-3.6-6-4-5.6-1.2C6.7 7.4 10 7.4 12 7zm0 0c1.5-3.6 6-4 5.6-1.2C17.3 7.4 14 7.4 12 7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><b>подарок</b></button>
         </div>
       </section>
       <button class="round next" type="button" data-go="s-final" aria-label="Дальше, к последнему письму">
@@ -855,7 +858,7 @@ body.album-mode .ldrift span{animation-play-state:running}
     <div class="album" id="album"></div>
     <div class="gnav album-nav">
       <button class="pill" type="button" data-go="s-gift">открыть подарок ещё раз</button>
-      <button class="link" type="button" data-go="s-ask">посмотреть всё сначала</button>
+      <button class="link" type="button" data-go="s-envs">к конвертам</button>
     </div>
   </section>
 

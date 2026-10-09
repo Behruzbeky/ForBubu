@@ -417,21 +417,47 @@ body.end-mode .rain{opacity:1}
 .q-answer{font-family:var(--script);font-weight:600;font-size:1.5rem;line-height:1.3;color:var(--ink);margin:0;white-space:pre-wrap;overflow-wrap:anywhere;
   width:min(420px,100%);padding:18px 20px;background:#fff6c9;box-shadow:0 8px 16px rgba(90,60,20,.16);transform:rotate(-1.5deg);animation:rise .5s var(--ease-out) both}
 
-/* голосовое в письме */
-.vnote{display:flex;align-items:center;gap:12px;width:min(340px,100%);padding:8px 16px 8px 8px;border-radius:999px;background:rgba(255,253,249,.8);box-shadow:0 8px 18px rgba(110,30,50,.14),inset 0 0 0 1px rgba(255,255,255,.9)}
-.vplay{width:48px;height:48px;flex:none}
-.vplay svg{width:20px;height:20px}
-.vplay .i-pause,.vnote.playing .vplay .i-play{display:none}
-.vnote.playing .vplay .i-pause{display:block}
-.vmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.vlabel{font-family:var(--script);font-weight:700;color:var(--rose);font-size:1.15rem;line-height:1;text-align:left}
-.vwave{display:flex;align-items:center;gap:2px;height:26px;cursor:pointer;border-radius:4px}
+/* голосовые: она ↔ Dudu */
+.voice-btn svg{width:18px;height:18px;color:var(--wine-3);flex:none}
+.voice-in{gap:16px}
+.vlist{width:min(460px,100%);display:flex;flex-direction:column;gap:12px;max-height:min(52dvh,460px);overflow-y:auto;overscroll-behavior:contain;padding:4px 4px 8px;scroll-behavior:smooth}
+.vempty{font-family:var(--script);font-weight:600;color:#9c6a64;font-size:1.35rem;margin:10px 0}
+.vday{align-self:center;font:600 .78rem var(--serif);letter-spacing:.08em;text-transform:uppercase;color:#9c7f79;background:rgba(255,253,249,.7);padding:2px 10px;border-radius:999px}
+.vmsg{display:flex;align-items:center;gap:10px;max-width:92%;padding:7px 14px 7px 7px;border-radius:26px 26px 26px 8px;align-self:flex-start;background:rgba(255,253,249,.92);box-shadow:0 6px 14px rgba(110,30,50,.12)}
+.vmsg.mine{align-self:flex-end;border-radius:26px 26px 8px 26px;background:#f7d3dc}
+.vmsg.draft{align-self:center;max-width:100%}
+.vplay{width:44px;height:44px;flex:none}
+.vplay svg{width:18px;height:18px}
+.vplay .i-pause,.vmsg.playing .vplay .i-play{display:none}
+.vmsg.playing .vplay .i-pause{display:block}
+.vplay.loading{opacity:.7}
+.vmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.vwho{font-family:var(--script);font-weight:700;color:var(--rose);font-size:1.1rem;line-height:1;text-align:left}
+.vwave{display:flex;align-items:center;gap:2px;height:24px;width:clamp(120px,40vw,190px);cursor:pointer;border-radius:4px}
 .vwave:focus-visible{outline:2px solid var(--wine-3);outline-offset:3px}
-.vwave i{flex:1;height:var(--h);min-height:3px;border-radius:2px;background:#e8bfca;transition:background .2s}
-.vwave i.on{background:var(--wine-3)}
-.vnote.playing .vwave i.on:last-child,.vnote.playing .vwave i.on + i:not(.on){animation:vbar .5s ease-in-out infinite alternate}
-@keyframes vbar{to{transform:scaleY(.6)}}
-.vtime{font:600 .9rem var(--serif);color:#6e4f4a;font-variant-numeric:tabular-nums;min-width:2.4em;text-align:right}
+.vwave i{flex:1;height:var(--h);min-height:3px;border-radius:2px;background:#e3b2bf;transition:background .2s}
+.vmsg.mine .vwave i{background:#d996a8}
+.vwave i.on,.vmsg.mine .vwave i.on{background:var(--wine-3)}
+.vtime{font:600 .85rem var(--serif);color:#6e4f4a;font-variant-numeric:tabular-nums;min-width:2.4em;text-align:right;align-self:flex-end;margin-bottom:3px}
+.vmsg.fresh{animation:rise .5s var(--ease-out) both}
+.rec{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.rec-idle{display:flex;flex-direction:column;align-items:center;gap:6px}
+.rec-hint{font-family:var(--script);font-weight:600;color:#6e4f4a;font-size:1.25rem;margin:0}
+.mic{width:72px;height:72px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;color:#fff;
+  background:radial-gradient(circle at 35% 30%,#e86f8c,#b8355a 60%,#8e2240);box-shadow:0 10px 22px -6px rgba(142,34,64,.55),inset 0 2px 3px rgba(255,255,255,.35);transition:transform .2s var(--ease-spring)}
+.mic:active{transform:scale(.93)}
+.mic:focus-visible{outline:2px solid var(--wine-3);outline-offset:4px}
+.mic svg{width:30px;height:30px}
+.mic.stop{width:58px;height:58px}
+.mic.stop svg{width:24px;height:24px}
+.rec-live{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 18px;border-radius:999px;background:rgba(255,253,249,.92);box-shadow:0 6px 14px rgba(110,30,50,.12)}
+.rec-dot{width:12px;height:12px;border-radius:50%;background:#e0364f;animation:recBlink 1s ease-in-out infinite}
+@keyframes recBlink{50%{opacity:.25}}
+.rec-time{font:600 1.05rem var(--serif);color:var(--ink);font-variant-numeric:tabular-nums;min-width:2.6em}
+.rec-level{display:flex;align-items:center;gap:2px;height:28px;width:clamp(110px,34vw,170px)}
+.rec-level i{flex:1;height:var(--h,10%);min-height:3px;border-radius:2px;background:var(--wine-3);transition:height .08s linear}
+.rec-done{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%}
+.rec .pill[disabled]{opacity:.6;cursor:default}
 
 /* ---------- подарок, дождь из лилий, альбом ---------- */
 .paperbg{opacity:0;background-color:#f7ecd9;background-image:radial-gradient(ellipse at 50% 42%,#fdf7ec 0%,#f8eedd 45%,#f1e0c4 100%)}
@@ -603,6 +629,7 @@ body.album-mode .ldrift span{animation-play-state:running}
       <div class="extras">
         <span class="miss-wrap"><button class="pill miss-btn" type="button" id="missBtn"><svg viewBox="0 0 100 92" aria-hidden="true"><path d="M50 90C20 66 0 48 0 26C0 10 12 0 26 0C38 0 46 8 50 16C54 8 62 0 74 0C88 0 100 10 100 26C100 48 80 66 50 90Z" fill="currentColor"/></svg><span>я скучаю</span></button><span class="miss-msg" id="missMsg" role="status" aria-live="polite"></span></span>
         <button class="pill qday-btn" type="button" data-go="s-question"><span class="qmark" aria-hidden="true">?</span><span>вопрос дня</span><i class="qdot" id="qDot" hidden></i></button>
+        <button class="pill voice-btn" type="button" data-go="s-voice"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>голосовые</span><i class="qdot" id="vDot" hidden></i></button>
       </div>
       <button class="round next" type="button" data-go="s-final" aria-label="Дальше, к последнему письму">
         <svg viewBox="0 0 24 24"><path d="M7 4.5l12 7.5-12 7.5z" fill="#fff"/></svg>
@@ -619,12 +646,7 @@ body.album-mode .ldrift span{animation-play-state:running}
           <div class="ph" id="photo"></div>
           <figcaption><p>Я тебя люблю</p></figcaption>
         </figure>
-        <div class="lbody"><div class="vnote" id="vnote" hidden>
-          <button class="round vplay" type="button" id="vplay" aria-label="Слушать голосовое от Dudu"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5l12 7.5-12 7.5z" fill="#fff"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="#fff"/></svg></button>
-          <div class="vmain"><span class="vlabel">голосовое от Dudu</span><span class="vwave" id="vwave" role="slider" aria-label="Перемотка" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"></span></div>
-          <span class="vtime" id="vtime">0:00</span>
-          <audio id="vaudio" preload="none"></audio>
-        </div><p class="ltext" id="ltext"></p><a class="pill llink" id="llink" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></svg><span id="llinkText"></span></a></div>
+        <div class="lbody"><p class="ltext" id="ltext"></p><a class="pill llink" id="llink" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></svg><span id="llinkText"></span></a></div>
         <img class="lsticker" id="lsticker" src="stickers/miss.webp" alt="" width="498" height="498">
       </article>
       <button class="round back" type="button" data-go="s-envs" data-dir="-1" aria-label="Назад к конвертам">
@@ -648,6 +670,32 @@ body.album-mode .ldrift span{animation-play-state:running}
       <div class="q-done" id="qDone" hidden>
         <p class="q-answer" id="qMine"></p>
         <p class="q-msg">отправлено Dudu ♥ завтра будет новый вопрос</p>
+      </div>
+      <button class="link" type="button" data-go="s-envs" data-dir="-1" data-a style="--i:3">к конвертам</button>
+    </div></div>
+  </section>
+
+  <!-- 4c. голосовые: она ↔ Dudu -->
+  <section class="screen" id="s-voice" aria-labelledby="t-voice">
+    <div class="card grain"><div class="card-in voice-in">
+      <span class="flower" data-flower></span>
+      <h2 class="gtitle" id="t-voice" data-a style="--i:0">наши голосовые</h2>
+      <div class="vlist" id="vlist" data-a style="--i:1" aria-live="polite"></div>
+      <div class="rec" id="rec" data-a style="--i:2">
+        <div class="rec-idle" id="recIdle">
+          <button class="mic" type="button" id="recStart" aria-label="Записать голосовое"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+          <p class="rec-hint" id="recHint"></p>
+        </div>
+        <div class="rec-live" id="recLive" hidden>
+          <span class="rec-dot" aria-hidden="true"></span><span class="rec-time" id="recTime">0:00</span>
+          <span class="rec-level" id="recLevel" aria-hidden="true"></span>
+          <button class="mic stop" type="button" id="recStop" aria-label="Остановить запись"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5" fill="currentColor"/></svg></button>
+        </div>
+        <div class="rec-done" id="recDone" hidden>
+          <div class="vmsg mine draft" id="recDraft"></div>
+          <div class="row"><button class="pill" type="button" id="recSend"></button><button class="link" type="button" id="recRedo">записать заново</button></div>
+        </div>
+        <p class="q-msg" id="recMsg" role="status" aria-live="polite"></p>
       </div>
       <button class="link" type="button" data-go="s-envs" data-dir="-1" data-a style="--i:3">к конвертам</button>
     </div></div>
@@ -826,8 +874,7 @@ const LETTERS = [
   { label:"нужны обнимашки", sticker:"hug",   text:"Держи: это самые большие медвежьи обнимашки на свете. Обними себя покрепче и представь, что это я. Считается! А при встрече я отдам тебе все обнимашки, которые задолжал. С процентами." },
   { label:"мы поссорились",  sticker:"fight", photo:true, text:"Если мы поссорились, давай сначала выдохнем. Мне не важно, кто из нас прав, мне важно, чтобы ты была рядом. Прости за то, что я сказал сгоряча. И, пожалуйста, не расстраивайся: ты же обещала мне не болеть. Если будешь переживать, опять всё начнёт болеть, а нам это совсем не нужно. Давай спокойно поговорим и помиримся." }
 ];
-/* письма с замком: open:"ГГГГ-ММ-ДД" — до этой даты конверт закрыт и показывает, когда откроется.
-   голосовое: voice:"media/voice-1.m4a" — в письме появится плеер (лучше .m4a или .mp3, их играют и iPhone, и Android). */
+/* письма с замком: open:"ГГГГ-ММ-ДД" — до этой даты конверт закрыт и показывает, когда откроется. */
 LETTERS.push(
   { label:"у тебя день рождения", sticker:"happy", open:"2027-05-07", text:"С днём рождения, моя Bubu! Я положил это письмо сюда ещё в октябре и всё это время ждал, когда ты его откроешь. Сегодня твой день, и я хочу, чтобы ты улыбалась с утра и до самой ночи. Спасибо, что ты есть, что ты выбрала меня и что ты такая, какая есть. Загадай желание: я сделаю всё, чтобы оно сбылось. Я тебя очень люблю. Твой Лучик." }
 );
@@ -914,7 +961,7 @@ function show(id){
   document.querySelectorAll(".screen.leaving").forEach(s => s.classList.remove("leaving"));
   prev.classList.remove("on"); prev.classList.add("leaving");
   if (prev.id === "s-cam") stopLive();
-  if (prev.id === "s-letter") $("vaudio").pause();
+  if (prev.id === "s-voice") voiceLeave();
   leaveTimer = setTimeout(() => {
     prev.classList.remove("leaving");
     document.body.classList.toggle("letter-mode", id === "s-letter");
@@ -1031,7 +1078,6 @@ function openLetter(i, btn){
   words($("ltext"), L.text);
   $("lsticker").src = "stickers/" + L.sticker + ".webp";
   $("llink").hidden = !L.link;
-  setVoice(L);
   if (L.link){ $("llink").href = L.link.url; $("llinkText").textContent = L.link.label; }
   $("polaroid").hidden = !L.photo;
   $("photo").innerHTML = PHOTO ? `<img src="${PHOTO}" alt="Мы вместе">` : `<span>тут будет наше фото</span>`;
@@ -1041,30 +1087,6 @@ function openLetter(i, btn){
 }
 words($("finalText"), FINAL);
 
-/* голосовое в письме: свой плеер с «волной» */
-const VBARS = 30, va = $("vaudio");
-$("vwave").innerHTML = Array.from({length:VBARS}, (_, k) => `<i style="--h:${Math.round(26 + 74*Math.abs(Math.sin(k*1.7) * Math.cos(k*.45)))}%"></i>`).join("");
-const fmtT = t => isFinite(t) && t > 0 ? Math.floor(t/60) + ":" + pad2(Math.floor(t % 60)) : "0:00";
-let vLabel = "";
-function vSync(){
-  const p = va.duration ? va.currentTime / va.duration : 0, n = Math.round(p * VBARS);
-  $("vwave").querySelectorAll("i").forEach((b, k) => b.classList.toggle("on", k < n));
-  $("vwave").setAttribute("aria-valuenow", Math.round(p * 100));
-  $("vtime").textContent = fmtT(va.currentTime > 0 ? va.currentTime : va.duration);
-}
-function setVoice(L){
-  va.pause();
-  $("vnote").hidden = !L.voice; $("vnote").classList.remove("playing");
-  if (!L.voice) { va.removeAttribute("src"); return; }
-  vLabel = L.label; va.src = L.voice; va.preload = "metadata"; va.load(); vSync();
-}
-["timeupdate","loadedmetadata","durationchange"].forEach(ev => va.addEventListener(ev, vSync));
-va.addEventListener("play", () => { $("vnote").classList.add("playing"); tgNote("🎧 Слушает голосовое в письме «" + vLabel + "»", true, "voice" + vLabel); });
-va.addEventListener("pause", () => $("vnote").classList.remove("playing"));
-va.addEventListener("ended", () => { va.currentTime = 0; vSync(); });
-$("vplay").onclick = () => { if (va.paused) va.play().catch(() => {}); else va.pause(); };
-$("vwave").addEventListener("click", e => { if (!va.duration) return; const r = $("vwave").getBoundingClientRect(); va.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * va.duration; });
-$("vwave").addEventListener("keydown", e => { if (!va.duration) return; if (e.key === "ArrowRight") va.currentTime = Math.min(va.duration, va.currentTime + 5); else if (e.key === "ArrowLeft") va.currentTime = Math.max(0, va.currentTime - 5); else return; e.preventDefault(); });
 
 
 /* ================= ГАЛЕРЕЯ =================
@@ -1144,6 +1166,7 @@ const TG_SCREENS = {
   "s-end":    ["❤️ Дошла до финала «Я тебя люблю»", true],
   "s-gift":   ["🎁 Дошла до подарка", true],
   "s-question":["❓ Открыла вопрос дня", false],
+  "s-voice":  ["🎙 Открыла голосовые", false],
   "s-album":  ["📸 Смотрит альбом", false],
 };
 const HEART_SVG = `<svg viewBox="0 0 100 92"><path d="${HEART_PATH}" fill="currentColor"/></svg>`;
@@ -1660,6 +1683,217 @@ $("qForm").addEventListener("submit", async e => {
   $("qAnswer").value = ""; qSync();
   const r = $("qMine").getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height/2, 22);
 });
+
+/* ================= ГОЛОСОВЫЕ: она ↔ Dudu =================
+   Записываются прямо на сайте в mp3 (играют и на iPhone, и на Android), бот отправляет их Dudu в Telegram,
+   а список хранится в закреплённом сообщении бота в этом же чате, поэтому его видят оба телефона.
+   Dudu записывает со своего телефона, открыв сайт с ?me: тогда голосовые идут «от Dudu» и появляются у неё. */
+const VOICE_TAG = "#forbubu_voices";
+const VOICE_HEAD = "🎙 Голосовые для сайта " + VOICE_TAG + "\nСлужебное сообщение: не удаляй и не открепляй его, иначе сайт забудет голосовые.";
+const VOICE_MAX_SEC = 180;
+const WHO = ME ? "d" : "b", WHO_NAME = {d:"Dudu", b:"Bubu"};
+const voiceOK = () => !!(TG_BOT_TOKEN && TG_CHAT_ID) && !inClaude && location.protocol !== "file:";
+async function tgApi(method, params, form){
+  const r = await fetch("https://api.telegram.org/bot" + TG_BOT_TOKEN + "/" + method, {method:"POST", body: form || new URLSearchParams(params)});
+  const j = await r.json().catch(() => ({}));
+  if (!j.ok) throw new Error(j.description || method + " failed");
+  return j.result;
+}
+let voices = store.get("bubu-voices", []).filter(v => v && v.f), voicePin = null, voicesAt = 0, voicesLoading = null;
+const vKey = v => v.f;
+function mergeVoices(list){
+  const m = new Map(voices.map(v => [vKey(v), v]));
+  list.forEach(v => m.set(vKey(v), v));
+  voices = [...m.values()].sort((a, b) => a.t - b.t);
+  store.set("bubu-voices", voices.slice(-60));
+}
+function loadVoices(force){
+  if (!voiceOK()) return Promise.resolve(false);
+  if (voicesLoading) return voicesLoading;
+  if (!force && Date.now() - voicesAt < 60000) return Promise.resolve(true);
+  voicesLoading = (async () => {
+    try {
+      const chat = await tgApi("getChat", {chat_id: TG_CHAT_ID});
+      const pm = chat.pinned_message;
+      if (pm && pm.text && pm.text.includes(VOICE_TAG) && pm.from && pm.from.is_bot){
+        voicePin = pm.message_id;
+        mergeVoices(pm.text.split("\n").map(l => l.match(/^v1 ([bd]) (\d+) (\d+) (\S+)$/)).filter(Boolean).map(m => ({w:m[1], t:+m[2], d:+m[3], f:m[4]})));
+      } else voicePin = null;
+      voicesAt = Date.now(); return true;
+    } catch { return false; } finally { voicesLoading = null; }
+  })();
+  return voicesLoading;
+}
+async function saveVoiceIndex(){
+  let list = voices.slice(), text;
+  do { text = VOICE_HEAD + "\n" + list.map(v => `v1 ${v.w} ${v.t} ${v.d} ${v.f}`).join("\n"); if (text.length > 4000) list.shift(); } while (text.length > 4000);
+  if (voicePin){
+    try { await tgApi("editMessageText", {chat_id: TG_CHAT_ID, message_id: voicePin, text}); return; }
+    catch (e) { if (/not modified/i.test(e.message)) return; }
+  }
+  const m = await tgApi("sendMessage", {chat_id: TG_CHAT_ID, text, disable_notification: "true"});
+  await tgApi("pinChatMessage", {chat_id: TG_CHAT_ID, message_id: m.message_id, disable_notification: "true"});
+  voicePin = m.message_id;
+}
+
+/* ссылки на файлы: Telegram даёт их на час, берём заранее, чтобы «play» срабатывал сразу (важно для iPhone) */
+const vUrls = {};
+async function voiceUrl(f){
+  const c = vUrls[f]; if (c && Date.now() - c.at < 50*60000) return c.url;
+  const r = await tgApi("getFile", {file_id: f});
+  const url = "https://api.telegram.org/file/bot" + TG_BOT_TOKEN + "/" + r.file_path;
+  vUrls[f] = {url, at: Date.now()}; return url;
+}
+
+/* плеер: один на все пузыри */
+const vp = new Audio(); vp.preload = "auto";
+let vCur = null;                                                     // {el, f}
+const fmtT = t => isFinite(t) && t > 0 ? Math.floor(t/60) + ":" + pad2(Math.floor(t % 60)) : "0:00";
+const hashH = (str, k) => { let h = 2166136261; for (const ch of str + k) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return 22 + ((h >>> 0) % 78); };
+function vPaint(el, p, t){
+  const bars = el.querySelectorAll(".vwave i"), n = Math.round(p * bars.length);
+  bars.forEach((b, k) => b.classList.toggle("on", k < n));
+  el.querySelector(".vwave").setAttribute("aria-valuenow", Math.round(p * 100));
+  if (t !== undefined) el.querySelector(".vtime").textContent = fmtT(t);
+}
+function vStop(){ vp.pause(); if (vCur){ vCur.el.classList.remove("playing"); vPaint(vCur.el, 0, +vCur.el.dataset.d); } vCur = null; }
+vp.addEventListener("timeupdate", () => { if (vCur && vp.duration) vPaint(vCur.el, vp.currentTime / vp.duration, vp.currentTime); });
+vp.addEventListener("ended", vStop);
+vp.addEventListener("pause", () => vCur && vCur.el.classList.remove("playing"));
+vp.addEventListener("play", () => vCur && vCur.el.classList.add("playing"));
+function bubble(v, mine, label, src){
+  const el = document.createElement("div");
+  el.className = "vmsg" + (mine ? " mine" : ""); el.dataset.d = v.d || 0;
+  el.innerHTML = `<button class="round vplay" type="button" aria-label="Слушать голосовое: ${label}"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5l12 7.5-12 7.5z" fill="#fff"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="#fff"/></svg></button>
+    <div class="vmain"><span class="vwho"></span><span class="vwave" role="slider" tabindex="0" aria-label="Перемотка" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${Array.from({length:28}, (_, k) => `<i style="--h:${hashH(v.f || "draft", k)}%"></i>`).join("")}</span></div>
+    <span class="vtime">${fmtT(v.d)}</span>`;
+  el.querySelector(".vwho").textContent = label;
+  const btn = el.querySelector(".vplay");
+  btn.onclick = async () => {
+    if (vCur && vCur.el === el){ if (vp.paused) vp.play().catch(() => {}); else vp.pause(); return; }
+    vStop();
+    let url = src || (vUrls[v.f] && vUrls[v.f].url);
+    if (!url){ btn.classList.add("loading"); try { url = await voiceUrl(v.f); } catch { btn.classList.remove("loading"); $("recMsg").textContent = "не получилось загрузить голосовое, попробуй ещё раз"; return; } btn.classList.remove("loading"); }
+    vCur = {el, f: v.f}; vp.src = url;
+    vp.play().catch(() => { el.classList.remove("playing"); });
+    if (v.f && v.w && v.w !== WHO) tgNote(`🎧 Слушает голосовое от ${WHO_NAME[v.w]}`, false, "vlisten" + v.f);
+  };
+  const wave = el.querySelector(".vwave");
+  wave.addEventListener("click", e => { if (!vCur || vCur.el !== el || !vp.duration) return; const r = wave.getBoundingClientRect(); vp.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * vp.duration; });
+  wave.addEventListener("keydown", e => { if (!vCur || vCur.el !== el || !vp.duration) return; if (e.key === "ArrowRight") vp.currentTime = Math.min(vp.duration, vp.currentTime + 5); else if (e.key === "ArrowLeft") vp.currentTime = Math.max(0, vp.currentTime - 5); else return; e.preventDefault(); });
+  return el;
+}
+const dayLabel = t => { const d = new Date(t*1000), n = new Date(); const k = Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 864e5); return k === 0 ? "сегодня" : k === 1 ? "вчера" : d.getDate() + " " + MONTHS[d.getMonth()]; };
+function renderVoices(state, fresh){
+  const L = $("vlist"); const playing = vCur && vCur.f; L.textContent = "";
+  if (!voices.length){
+    const p = document.createElement("p"); p.className = "vempty";
+    p.textContent = state === "loading" ? "загружаю…" : state === "error" ? "не получилось загрузить, проверь интернет" : (WHO === "b" ? "Пока тихо. Запиши Dudu первое голосовое ♥" : "Пока тихо. Запиши Bubu первое голосовое ♥");
+    L.appendChild(p); return;
+  }
+  let lastDay = "";
+  voices.forEach(v => {
+    const dl = dayLabel(v.t);
+    if (dl !== lastDay){ const s = document.createElement("span"); s.className = "vday"; s.textContent = dl; L.appendChild(s); lastDay = dl; }
+    const el = bubble(v, v.w === WHO, v.w === WHO ? "ты" : WHO_NAME[v.w]);
+    if (fresh && v.f === fresh) el.classList.add("fresh");
+    if (playing === v.f){ vCur.el = el; el.classList.toggle("playing", !vp.paused); }
+    L.appendChild(el);
+  });
+  L.scrollTop = L.scrollHeight;
+  voices.slice(-12).forEach(v => voiceUrl(v.f).catch(() => {}));       // заранее, чтобы play сразу играл
+}
+const seenKey = "bubu-voices-seen";
+function voiceDot(){ const seen = store.get(seenKey, 0); $("vDot").hidden = !voices.some(v => v.w !== WHO && v.t > seen); }
+function markVoicesSeen(){ store.set(seenKey, voices.reduce((m, v) => v.w !== WHO ? Math.max(m, v.t) : m, store.get(seenKey, 0))); voiceDot(); }
+
+/* запись: микрофон → mp3 */
+let lameP = null;
+const ensureLame = () => lameP || (lameP = new Promise((ok, no) => { if (window.lamejs) return ok(); const sc = document.createElement("script"); sc.src = "vendor/lame.min.js"; sc.onload = ok; sc.onerror = () => { lameP = null; no(); }; document.head.appendChild(sc); }));
+let rec = null, draft = null;
+const recView = id => ["recIdle","recLive","recDone"].forEach(k => $(k).hidden = k !== id);
+$("recLevel").innerHTML = Array.from({length:24}, () => "<i></i>").join("");
+function recReset(){ if (draft){ URL.revokeObjectURL(draft.url); draft = null; } recView("recIdle"); $("recHint").textContent = WHO === "b" ? "нажми и скажи что-нибудь Dudu" : "запиши голосовое для Bubu"; }
+function recKill(){ if (!rec) return; clearInterval(rec.timer); try { rec.proc.disconnect(); rec.src.disconnect(); } catch {} rec.stream.getTracks().forEach(t => t.stop()); rec.ctx.close().catch(() => {}); const r = rec; rec = null; return r; }
+$("recStart").onclick = async () => {
+  $("recMsg").textContent = ""; vStop();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ $("recMsg").textContent = "в этом браузере запись не работает, открой сайт в Safari или Chrome"; return; }
+  const ctx = new AC();
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}}); }
+  catch (e) { ctx.close().catch(() => {}); $("recMsg").textContent = e && e.name === "NotAllowedError" ? "разреши сайту микрофон в настройках браузера" : "микрофон не открылся, попробуй ещё раз"; return; }
+  try { await ctx.resume(); } catch {}
+  const src = ctx.createMediaStreamSource(stream), proc = ctx.createScriptProcessor(4096, 1, 1);
+  const chunks = [], bars = [...$("recLevel").children]; let lv = [];
+  proc.onaudioprocess = e => {
+    const d = e.inputBuffer.getChannelData(0); chunks.push(new Float32Array(d));
+    let m = 0; for (let i = 0; i < d.length; i += 16) m = Math.max(m, Math.abs(d[i]));
+    lv.push(m); if (lv.length > bars.length) lv.shift();
+    bars.forEach((b, k) => b.style.setProperty("--h", Math.min(100, 8 + (lv[k - bars.length + lv.length] || 0) * 260) + "%"));
+  };
+  src.connect(proc); proc.connect(ctx.destination);
+  rec = {ctx, src, proc, stream, chunks, rate: ctx.sampleRate, t0: Date.now()};
+  rec.timer = setInterval(() => { const s = (Date.now() - rec.t0) / 1000; $("recTime").textContent = fmtT(s); if (s >= VOICE_MAX_SEC) $("recStop").click(); }, 200);
+  $("recTime").textContent = "0:00"; recView("recLive");
+  ensureLame().catch(() => {});
+};
+$("recStop").onclick = async () => {
+  const r = recKill(); if (!r) return;
+  const total = r.chunks.reduce((n, c) => n + c.length, 0), dur = total / r.rate;
+  if (dur < .8){ recReset(); $("recMsg").textContent = "слишком коротко, попробуй ещё раз"; return; }
+  recView("recDone"); $("recDraft").innerHTML = ""; $("recSend").disabled = true; $("recSend").textContent = "готовлю…";
+  try {
+    await ensureLame();
+    const half = r.rate >= 44100, rate = half ? r.rate / 2 : r.rate, n = half ? total >> 1 : total, pcm = new Int16Array(n);
+    let i = 0, carry = null;
+    for (const c of r.chunks) for (let k = 0; k < c.length; k++){
+      if (half){ if (carry === null){ carry = c[k]; continue; } const x = (carry + c[k]) / 2; carry = null; if (i < n){ const y = Math.max(-1, Math.min(1, x)); pcm[i++] = y < 0 ? y * 0x8000 : y * 0x7FFF; } }
+      else { const y = Math.max(-1, Math.min(1, c[k])); pcm[i++] = y < 0 ? y * 0x8000 : y * 0x7FFF; }
+    }
+    await new Promise(res => setTimeout(res, 30));                   // дать экрану обновиться
+    const enc = new lamejs.Mp3Encoder(1, rate, 48), out = [];
+    for (let k = 0; k < pcm.length; k += 1152){ const b = enc.encodeBuffer(pcm.subarray(k, k + 1152)); if (b.length) out.push(new Int8Array(b)); }
+    const e = enc.flush(); if (e.length) out.push(new Int8Array(e));
+    const blob = new Blob(out, {type:"audio/mpeg"});
+    draft = {blob, url: URL.createObjectURL(blob), d: Math.round(dur)};
+    $("recDraft").replaceWith(Object.assign(bubble({d: draft.d}, true, "твоё голосовое", draft.url), {id: "recDraft"}));
+    $("recDraft").classList.add("draft");
+    $("recSend").textContent = WHO === "b" ? "отправить Dudu" : "отправить Bubu"; $("recSend").disabled = false;
+  } catch { recReset(); $("recMsg").textContent = "не получилось подготовить запись, попробуй ещё раз"; }
+};
+$("recRedo").onclick = () => { vStop(); recReset(); $("recStart").click(); };
+$("recSend").onclick = async () => {
+  if (!draft) return;
+  if (!voiceOK()){ $("recMsg").textContent = "отправка работает, когда сайт открыт по обычной ссылке"; return; }
+  vStop(); $("recSend").disabled = true; $("recMsg").textContent = "отправляю…";
+  const fd = new FormData();
+  fd.append("chat_id", TG_CHAT_ID); fd.append("duration", draft.d);
+  fd.append("caption", WHO === "b" ? "🎙 Голосовое от Bubu" : "🎙 Твоё голосовое для Bubu, оно уже на сайте");
+  fd.append("disable_notification", WHO === "d" ? "true" : "false");
+  fd.append("voice", draft.blob, "voice.mp3");
+  let file;
+  try { const m = await tgApi("sendVoice", null, fd); file = (m.voice || m.audio || m.document || {}).file_id; if (!file) throw 0; }
+  catch { $("recSend").disabled = false; $("recMsg").textContent = "не получилось отправить, попробуй ещё раз"; return; }
+  const v = {w: WHO, t: Math.floor(Date.now() / 1000), d: draft.d, f: file};
+  vUrls[file] = {url: draft.url, at: Date.now()}; draft = null;            // своё слушаем сразу из памяти
+  await loadVoices(true); mergeVoices([v]);
+  let saved = true; try { await saveVoiceIndex(); } catch { saved = false; }
+  renderVoices("", file); recReset();
+  $("recMsg").textContent = saved ? (WHO === "b" ? "отправлено Dudu ♥" : "отправлено, Bubu увидит его на сайте ♥") : "Dudu получил голосовое, но список на сайте не сохранился";
+  const r = $("vlist").lastElementChild.getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height/2, 18);
+};
+function voiceLeave(){ vStop(); if (rec){ recKill(); } recReset(); }
+onShow["s-voice"] = async () => {
+  recReset(); $("recMsg").textContent = "";
+  renderVoices(voices.length ? "" : "loading");
+  const ok = await loadVoices(true);
+  renderVoices(ok ? "" : "error"); markVoicesSeen();
+};
+recReset();
+const envsShow = onShow["s-envs"];
+onShow["s-envs"] = () => { envsShow && envsShow(); loadVoices().then(voiceDot); };
+voiceDot();
 
 /* ================= ФОТО С ФОТОАППАРАТА В АЛЬБОМЕ =================
    Альбом — это пустые рамки. Каждое фото, снятое на сайте, занимает следующую рамку (хранится на её телефоне).

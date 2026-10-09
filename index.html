@@ -376,6 +376,68 @@ body.end-mode .rain{opacity:1}
 .owner-link{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-size:.95rem;min-height:44px;min-width:0;padding:8px 18px}
 .link{background:none;border:0;font:600 1rem var(--serif);color:#6e4f4a;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px;padding:0 8px}
 
+/* ---------- подарок, дождь из лилий, альбом ---------- */
+.paperbg{opacity:0;background-color:#f7ecd9;background-image:radial-gradient(ellipse at 50% 42%,#fdf7ec 0%,#f8eedd 45%,#f1e0c4 100%)}
+body.gift-mode .paperbg{opacity:1}
+body.gift-mode .gingham{opacity:0}
+.gift-wrap{min-height:calc(100dvh - 64px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.gift{position:relative;border:0;background:none;padding:0;cursor:pointer;width:min(250px,60vw);aspect-ratio:240/236;filter:drop-shadow(0 14px 18px rgba(200,90,120,.22))}
+.gift::before{content:"";position:absolute;inset:-18% -22%;z-index:-1;background:radial-gradient(closest-side,rgba(255,255,255,.75),rgba(255,255,255,0));pointer-events:none}
+.gift svg{width:100%;height:100%;display:block;overflow:visible}
+.gift .g-lid{transform-box:fill-box;transform-origin:50% 100%}
+.gift:focus-visible{outline:2px solid var(--wine-3);outline-offset:8px;border-radius:12px}
+.screen.on .gift{animation:giftIn .7s var(--ease-spring) both,giftBob 3.2s ease-in-out 1s infinite}
+.screen.on .gift:hover .g-lid{animation:lidPeek .9s ease-in-out}
+@keyframes giftIn{from{opacity:0;transform:translateY(24px) scale(.8)}to{opacity:1;transform:none}}
+@keyframes giftBob{0%,100%{transform:none}50%{transform:translateY(-6px) rotate(-1.2deg)}}
+@keyframes lidPeek{30%{transform:translateY(-8px) rotate(-3deg)}60%{transform:translateY(-3px) rotate(2deg)}}
+.gift.open{animation:giftShake .42s ease-in-out both!important;pointer-events:none}
+.gift.open .g-lid{animation:lidOff .75s var(--ease-out) .3s both}
+.gift.open .g-body{animation:bodyOut .6s var(--ease-in) .55s both;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes giftShake{20%{transform:rotate(-5deg)}45%{transform:rotate(4deg)}70%{transform:rotate(-2deg)}100%{transform:none}}
+@keyframes lidOff{to{transform:translate(18px,-150px) rotate(24deg);opacity:0}}
+@keyframes bodyOut{to{transform:scale(.6);opacity:0}}
+.gift-title{font-family:var(--script);font-weight:700;color:#8e1f3a;font-size:clamp(2.4rem,8vw,3.4rem);line-height:1;margin:10px 0 0}
+.gift-hint{font-family:var(--script);font-weight:500;font-style:italic;color:#9c6a64;font-size:1.25rem;margin:0}
+.screen.on .gift-title{animation:rise .6s var(--ease-out) .35s both}
+.screen.on .gift-hint{animation:rise .6s var(--ease-out) .55s both,hintPulse 2.4s ease-in-out 1.6s infinite}
+@keyframes hintPulse{50%{opacity:.45}}
+
+/* лилии засыпают экран, потом осыпаются вниз */
+.shower{position:fixed;inset:0;z-index:55;pointer-events:none;overflow:hidden}
+.shower span{position:absolute;left:0;top:0;will-change:transform}
+.shower img{display:block;width:100%;height:auto}
+
+/* редкие лилии падают на фоне альбома */
+.ldrift{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity 1.2s}
+body.album-mode .ldrift{opacity:1}
+.ldrift span{position:absolute;top:-16vh;left:var(--x);width:var(--w);animation:ldFall var(--t) linear var(--d) infinite;animation-play-state:paused}
+body.album-mode .ldrift span{animation-play-state:running}
+.ldrift img{display:block;width:100%;height:auto;opacity:.92;animation:ldSway calc(var(--t) / 4) ease-in-out infinite alternate}
+@keyframes ldFall{to{transform:translate(var(--dx),130vh) rotate(var(--r))}}
+@keyframes ldSway{from{transform:translateX(-14px) rotate(-8deg)}to{transform:translateX(14px) rotate(8deg)}}
+
+.album-head .gtitle{color:#8e1f3a}
+.album{width:min(1100px,100%);margin:6px auto 0;columns:2;column-gap:14px;padding:6px 4px 0}
+@media (min-width:640px){.album{columns:3;column-gap:22px}}
+@media (min-width:980px){.album{columns:4;column-gap:26px}}
+.apol{display:block;width:100%;break-inside:avoid;margin:0 0 16px;border:0;cursor:pointer;background:#fffdf9;padding:8px 8px 30px;box-shadow:0 10px 18px rgba(90,50,30,.18),0 1px 2px rgba(90,50,30,.14);transform:translate(var(--jx),var(--jy)) rotate(var(--rot));opacity:0;text-align:center}
+@media (min-width:640px){.apol{padding:12px 12px 42px;margin-bottom:24px}}
+.apol .im{position:relative;overflow:hidden;background:#efe6dc;aspect-ratio:var(--ar,auto)}
+.apol[style*="--ar"] img{height:100%}
+.apol .im::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);pointer-events:none}
+.apol img{display:block;width:100%;height:auto;object-fit:cover;opacity:0;filter:brightness(.35) sepia(.9) blur(6px)}
+.apol .cap{display:block;font-family:var(--script);font-weight:600;font-size:1.25rem;color:var(--ink);line-height:1.1;margin:8px 0 -22px;min-height:1em}
+.album.play .apol{animation:apolIn .7s var(--ease-spring) both;animation-delay:var(--d)}
+.album.play .apol img{animation:develop 2.2s ease-out both;animation-delay:calc(var(--d) + .45s)}
+@keyframes apolIn{from{opacity:0;transform:translate(var(--jx),calc(var(--jy) - 26px)) rotate(calc(var(--rot) * -1.6)) scale(1.12)}to{opacity:1;transform:translate(var(--jx),var(--jy)) rotate(var(--rot))}}
+@keyframes develop{0%{opacity:0;filter:brightness(.35) sepia(.9) blur(6px)}25%{opacity:1}100%{opacity:1;filter:none}}
+@media (hover:hover){.album.play .apol{transition:transform .35s var(--ease-out),box-shadow .35s}.apol:hover{transform:translate(var(--jx),calc(var(--jy) - 4px)) rotate(0deg) scale(1.03);box-shadow:0 16px 26px rgba(90,50,30,.24)}}
+.apol:focus-visible{outline:2px solid var(--wine-3);outline-offset:4px}
+.album-head,.album-nav{opacity:0}
+.album.play ~ .album-nav,.album-head.play{animation:rise .6s var(--ease-out) both}
+.album.play ~ .album-nav{animation-delay:1.6s}
+
 @media (max-width:560px){
   .card-in{min-height:0;padding-bottom:84px}
   .flower{top:-30px;right:-10px}
@@ -400,6 +462,7 @@ body.end-mode .rain{opacity:1}
   <linearGradient id="lLeaf" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#6f9a57"/><stop offset="1" stop-color="#a7c98b"/></linearGradient>
 </defs></svg>
 <div class="bg gingham" aria-hidden="true"></div>
+<div class="bg paperbg grain" aria-hidden="true"></div>
 <div class="bg hearts grain" id="heartsBg" aria-hidden="true"></div>
 <div class="bloom-field" id="bloom" aria-hidden="true"></div>
 <div class="fx" id="fx" aria-hidden="true"></div>
@@ -583,8 +646,55 @@ body.end-mode .rain{opacity:1}
       <div class="end-lilies" data-lilies="2"></div><h2 class="end-title" id="t-end">Я тебя люблю</h2>
       <img class="sticker pop" src="stickers/hug.webp" alt="Мишки обнимаются" width="498" height="493" style="--ar:498/493">
       <p class="end-sub" data-a style="--i:4">твой Dudu, навсегда</p>
+      <button class="pill" type="button" data-go="s-gift" data-burst data-a style="--i:5">а ещё у меня есть для тебя подарок</button>
       <button class="link" type="button" data-go="s-ask" data-a style="--i:6">посмотреть всё сначала</button>
     </div></div>
+  </section>
+
+  <!-- 11. подарок: нажала — сыплются лилии -->
+  <section class="screen" id="s-gift" aria-labelledby="t-gift">
+    <div class="gift-wrap">
+      <button class="gift" type="button" id="giftBtn" aria-label="Открыть подарок">
+        <svg viewBox="0 0 240 236" aria-hidden="true" overflow="visible">
+          <defs>
+            <pattern id="gHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><rect width="7" height="7" fill="#fbdbe3"/><path d="M0 1.5h7M0 5h7" stroke="#e8798f" stroke-width="1.6" opacity=".75"/></pattern>
+            <pattern id="gHatch2" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><rect width="6" height="6" fill="#e9748f"/><path d="M0 2h6" stroke="#b8304f" stroke-width="1.8" opacity=".8"/></pattern>
+          </defs>
+          <g class="g-body">
+            <path d="M38 128L203 125L201 223L40 225Z" fill="url(#gHatch)"/>
+            <path d="M109 127L131 126L131 224L110 225Z" fill="url(#gHatch2)"/>
+            <path d="M38 128L203 125L201 223L40 225Z" fill="none" stroke="#3a2a27" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M40 130L201 127M41 222L199 221" fill="none" stroke="#3a2a27" stroke-width="1.4" opacity=".5"/>
+            <path d="M109 127L110 225M131 126L131 224" stroke="#3a2a27" stroke-width="2.2"/>
+          </g>
+          <g class="g-lid">
+            <path d="M24 90L217 87L216 128L26 130Z" fill="url(#gHatch)"/>
+            <path d="M107 89L133 88L133 128L108 129Z" fill="url(#gHatch2)"/>
+            <path d="M24 90L217 87L216 128L26 130Z" fill="none" stroke="#3a2a27" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M27 93L214 90" stroke="#3a2a27" stroke-width="1.4" opacity=".5"/>
+            <path d="M107 89L108 129M133 88L133 128" stroke="#3a2a27" stroke-width="2.2"/>
+            <path d="M119 88C97 54 58 52 66 76C72 93 103 92 119 88Z" fill="url(#gHatch2)" stroke="#3a2a27" stroke-width="2.8" stroke-linejoin="round"/>
+            <path d="M121 88C143 52 184 56 175 79C168 94 138 92 121 88Z" fill="url(#gHatch2)" stroke="#3a2a27" stroke-width="2.8" stroke-linejoin="round"/>
+            <path d="M80 72C90 76 104 82 114 86M161 74C150 78 136 83 126 86" stroke="#3a2a27" stroke-width="1.3" fill="none" opacity=".55"/>
+            <path d="M115 92C106 104 98 112 88 118L98 120C104 112 112 104 118 94Z" fill="url(#gHatch2)" stroke="#3a2a27" stroke-width="2.4" stroke-linejoin="round"/>
+            <path d="M125 92C134 104 142 111 152 116L143 120C136 112 128 104 122 94Z" fill="url(#gHatch2)" stroke="#3a2a27" stroke-width="2.4" stroke-linejoin="round"/>
+            <ellipse cx="120" cy="88" rx="10" ry="9" fill="url(#gHatch2)" stroke="#3a2a27" stroke-width="2.8"/>
+          </g>
+        </svg>
+      </button>
+      <h2 class="gift-title" id="t-gift">Это тебе, моя Bubu.</h2>
+      <p class="gift-hint">(нажми, чтобы открыть)</p>
+    </div>
+  </section>
+
+  <!-- 12. альбом: рамки, в каждой проявляется фото -->
+  <section class="screen wide" id="s-album" aria-labelledby="t-album">
+    <div class="ghead album-head"><h2 class="gtitle" id="t-album">наш альбом</h2><p class="gsub">нажми на фото, чтобы рассмотреть</p></div>
+    <div class="album" id="album"></div>
+    <div class="gnav album-nav">
+      <button class="pill" type="button" data-go="s-gift">открыть подарок ещё раз</button>
+      <button class="link" type="button" data-go="s-ask">посмотреть всё сначала</button>
+    </div>
   </section>
 
   <!-- только для владельца: её фото -->
@@ -599,6 +709,8 @@ body.end-mode .rain{opacity:1}
 </main>
 
 <div class="rain" id="rain" aria-hidden="true"></div>
+<div class="ldrift" id="ldrift" aria-hidden="true"></div>
+<div class="shower" id="shower" aria-hidden="true"></div>
 <div class="flash" id="flash" aria-hidden="true"></div>
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Фото крупно"><div class="lb-card"><div class="lb-media" id="lbMedia"></div><p class="lb-cap" id="lbCap"></p><button class="link" type="button" id="lbSave" hidden>скачать фото</button><button class="round lb-close" type="button" id="lbClose" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/></svg></button></div></div>
 <button class="owner-link" type="button" id="ownerLink" data-go="s-inbox" hidden>её фото</button>
@@ -684,6 +796,8 @@ function show(id){
     prev.classList.remove("leaving");
     document.body.classList.toggle("letter-mode", id === "s-letter");
     document.body.classList.toggle("end-mode", id === "s-end");
+    document.body.classList.toggle("gift-mode", id === "s-gift" || id === "s-album");
+    document.body.classList.toggle("album-mode", id === "s-album");
     next.classList.add("on"); current = next;
     window.scrollTo({top:0, behavior: reduce ? "auto" : "smooth"});
     const f = next.querySelector("h1, h2, .ltext, .final-text"); if (f){ f.setAttribute("tabindex","-1"); f.focus({preventScroll:true}); }
@@ -793,6 +907,11 @@ const V = n => ({ type:"video", src:`media/v${n}.mp4`, prev:`media/v${n}-prev.mp
 const FILM    = [V(1), P(1), V(2), V(10), P(2), V(3), V(9), P(10)];
 const GARLAND = [P(3), V(4), P(4), V(5), P(5), V(11), P(6), V(12)];
 const STACK   = [P(7), V(6), P(8), P(9), V(7), P(11), V(8)];
+/* альбом в самом конце (после подарка): каждая карточка — полароид, фото в нём проявляется.
+   Добавить фото: положить файл в media/ и дописать сюда { type:"photo", src:"media/мы.jpg", caption:"подпись" } */
+const ALBUM   = [P(1), P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9), P(10), P(11)];
+/* лилии из подарка: сколько секунд засыпают экран и сколько падают вниз (больше — медленнее) */
+const SHOWER  = { pour: 1.1, fall: 2.1 };
 const CAM_CAPTION = "моя Bubu";
 const TG_USERNAME = "";        // ник в Telegram без @ для видимой кнопки; пусто, чтобы кнопки не было
 /* фото с фотоаппарата приходят в Telegram через бота (работает, когда сайт открыт по обычной ссылке, не на claude.ai) */
@@ -853,6 +972,8 @@ const TG_SCREENS = {
   "s-stack":  ["📚 Листает стопку полароидов", false],
   "s-cam":    ["📷 Дошла до фотоаппарата", false],
   "s-end":    ["❤️ Дошла до финала «Я тебя люблю»", true],
+  "s-gift":   ["🎁 Дошла до подарка", true],
+  "s-album":  ["📸 Смотрит альбом", false],
 };
 const HEART_SVG = `<svg viewBox="0 0 100 92"><path d="${HEART_PATH}" fill="currentColor"/></svg>`;
 const PLAY_SVG = `<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="#fff"/></svg>`;
@@ -1305,6 +1426,84 @@ document.addEventListener("pointerdown", e => {
   };
   addEventListener("pointerup", up); addEventListener("pointercancel", up);
 }, {passive:true});
+
+/* ================= ПОДАРОК: лилии и альбом ================= */
+function lilyShower(onCovered, onFalling, onDone){
+  const sh = $("shower"); sh.textContent = "";
+  const W = innerWidth, H = innerHeight;
+  const size = Math.round(Math.max(96, Math.min(200, Math.min(W, H) * .32)));
+  const step = size * .56, cols = Math.ceil(W / step) + 1, rows = Math.ceil(H / step) + 1;
+  const T = (x, y, r) => `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) translate(-50%,-50%) rotate(${r.toFixed(1)}deg)`;
+  const items = [];
+  for (let r=0; r<rows; r++) for (let c=0; c<cols; c++) items.push({
+    x: (c + .5 + (Math.random()-.5)*.75) * W / cols,
+    y: (r + .5 + (Math.random()-.5)*.75) * H / rows,
+    row: r, w: Math.round(size * (.8 + Math.random()*.45)), rot: (Math.random()-.5)*80
+  });
+  items.sort(() => Math.random() - .5);                       // кто сверху, кто снизу — вперемешку
+  const frag = document.createDocumentFragment();
+  let covered = 0;
+  items.forEach((it, k) => {
+    const el = document.createElement("span"); el.style.width = it.w + "px";
+    el.innerHTML = `<img src="${LILIES[k % LILIES.length]}" alt="" decoding="async">`;
+    frag.appendChild(el); it.el = el;
+    const lift = it.y + it.w + Math.random() * H * .35;           // откуда падает: выше экрана
+    const delay = (rows - 1 - it.row) / rows * 900 + Math.random() * 260; // нижние ряды ложатся первыми
+    const dur = SHOWER.pour * 1000 * (.85 + Math.random()*.3);
+    el.animate([{transform:T(it.x, it.y - lift, it.rot - 35)}, {transform:T(it.x, it.y, it.rot)}],
+      {duration:dur, delay, easing:"cubic-bezier(.25,.7,.35,1)", fill:"both"});
+    covered = Math.max(covered, delay + dur);
+  });
+  sh.appendChild(frag);
+  setTimeout(onCovered, covered);
+  setTimeout(() => {
+    setTimeout(onFalling, 650);                                 // рамки начинают заполняться, когда лилии уже осыпаются
+    let end = 0;
+    items.forEach(it => {
+      const delay = (rows - 1 - it.row) / rows * 1500 + Math.random() * 400; // осыпаются снизу вверх
+      const dur = SHOWER.fall * 1000 * (.85 + Math.random()*.35);
+      const dx = (Math.random()-.5) * 90, spin = (Math.random()-.5) * 140;
+      it.el.animate([{transform:T(it.x, it.y, it.rot)}, {transform:T(it.x + dx*.4, it.y + (H - it.y)*.35, it.rot + spin*.3), offset:.45}, {transform:T(it.x + dx, H + it.w, it.rot + spin)}],
+        {duration:dur, delay, easing:"cubic-bezier(.45,.05,.8,.6)", fill:"both"});
+      end = Math.max(end, delay + dur);
+    });
+    setTimeout(() => { sh.textContent = ""; onDone && onDone(); }, end + 60);
+  }, covered + 380);
+}
+
+let albumBuilt = false;
+function buildAlbum(){
+  if (albumBuilt) return; albumBuilt = true;
+  const order = ALBUM.map((_, i) => i).sort(() => Math.random() - .5); // рамки заполняются вразброс
+  ALBUM.forEach((it, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "apol";
+    b.style.cssText = `--rot:${((Math.random()-.5)*8).toFixed(1)}deg;--jx:${Math.round((Math.random()-.5)*8)}px;--jy:${Math.round((Math.random()-.5)*10)}px;--d:${order[i]*170}ms` + (it.ar ? `;--ar:${it.ar}` : "");
+    b.setAttribute("aria-label", it.caption ? "Фото: " + it.caption : "Фото " + (i + 1) + ", открыть крупно");
+    const src = it.type === "video" ? it.poster : (it.thumb || it.src);
+    b.innerHTML = `<span class="im"><img src="${src}" alt="" decoding="async">${it.type === "video" ? `<span class="mbadge">${PLAY_SVG}</span>` : ""}</span><span class="cap"></span>`;
+    b.querySelector(".cap").textContent = it.caption || "";
+    b.onclick = () => openLB(it, i);
+    $("album").appendChild(b);
+  });
+}
+function playAlbum(){
+  [$("album"), document.querySelector(".album-head")].forEach(el => { el.classList.remove("play"); void el.offsetWidth; el.classList.add("play"); });
+}
+let giftBusy = false;
+onShow["s-gift"] = () => { $("giftBtn").classList.remove("open"); giftBusy = false; buildAlbum(); };
+$("giftBtn").onclick = () => {
+  if (giftBusy) return; giftBusy = true;
+  const b = $("giftBtn"); b.classList.add("open");
+  const r = b.getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height*.35, 18);
+  tgLast = "открыла подарок"; tgNote("🎁 Открыла подарок, посыпались лилии", true, "gift");
+  buildAlbum();
+  [$("album"), document.querySelector(".album-head")].forEach(el => el.classList.remove("play"));
+  if (reduce){ show("s-album"); setTimeout(playAlbum, 60); return; }
+  setTimeout(() => lilyShower(() => show("s-album"), playAlbum), 620);
+};
+/* на фоне альбома лилии падают редко и медленно */
+$("ldrift").innerHTML = Array.from({length:7}, (_, i) => `<span style="--x:${((i + .5) / 7 * 100 + (Math.random()-.5)*8).toFixed(1)}%;--w:${Math.round(44 + Math.random()*38)}px;--t:${(15 + Math.random()*9).toFixed(1)}s;--d:${(-Math.random()*22).toFixed(1)}s;--dx:${Math.round((Math.random()-.5)*120)}px;--r:${Math.round((Math.random()-.5)*220)}deg"><img src="${LILIES[(i*3) % LILIES.length]}" alt="" decoding="async"></span>`).join("");
 
 /* подгружаем стикеры заранее, чтобы не было пауз */
 (window.requestIdleCallback || (f => setTimeout(f, 800)))(() => ["lock","ask","please","ready","miss","sad","happy","hug","fight","final","look","carry","goof"].forEach(n => { const im = new Image(); im.decoding = "async"; im.src = "stickers/" + n + ".webp"; }));
